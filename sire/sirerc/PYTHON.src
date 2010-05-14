@@ -1,0 +1,10 @@
+
+
+IF "$(arg1)" != ""
+    PYTHONHOME = $(arg1);
+    PYTHON = $(PYTHONHOME)/bin/python;
+FI
+
+IF "$(PYTHON)" == ""
+    PYTHON = <python>;
+FI

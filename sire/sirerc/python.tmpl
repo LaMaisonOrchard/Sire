@@ -1,0 +1,10 @@
+
+import sys
+import os
+
+execfile('%s')
+
+print "%s\n"
+sys.stdout.flush()
+
+os.execl('%s', '%s')

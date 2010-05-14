@@ -1,0 +1,35 @@
+
+// Variables
+
+
+// Set the architecture
+
+IF "" != "$(arg1)" && "-" != "$(arg1)" 
+    ARCH = $(arg1);
+FI
+
+IF "$(ARCH)" != ""
+
+    // Cross compilation - setup the CFLAGS
+    
+    CFLAGS = -I$(ROOTDIR)/usr/$(ARCH)include $(CFLAGS); 
+FI
+
+
+// Set the path
+
+pre  = $(arg2);
+
+IF "" != "$(pre)"
+    PATH = $(pre):$(PATH);
+    pre  = $(pre)/ ;
+FI
+
+
+CC    = <$(pre)$(ARCH)gcc>;        // GNU C   compiler
+CCP   = <$(pre)$(ARCH)gcc>;        // GNU C++ compiler
+GASP  = <$(pre)$(ARCH)gasp> ;      // GNU Macro preprocessor (for the assembler)
+CPP   = <$(pre)$(ARCH)cpp> ;       // GNU P Preprocessor (for the compiler)
+AS    = <$(pre)$(ARCH)as> ;        // GNU Assembler
+F77   = <$(pre)$(ARCH)g77> ;       // Fortran 77 compiler
+JAVAC = <$(pre)$(ARCH)gcj> ;       // Java compiler

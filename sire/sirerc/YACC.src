@@ -1,0 +1,43 @@
+
+
+// Yacc/Lex
+
+pre  = $(arg2);
+
+IF "" != "$(pre)"
+    pre  = $(pre)/ ;
+FI
+
+IF "$(YACC)" == ""
+    YACC = <$(pre)byson> ;
+FI
+
+IF "$(YACC)" == ""
+    YACC = <$(pre)yacc> ;
+FI
+
+IF "$(LEX)" == ""
+    LEX = <$(pre)flex> ;
+FI
+
+IF "$(LEX)" == ""
+    LEX = <$(pre)lex> ;
+FI
+
+
+IF "$(YACC)" != ""
+
+    *.tab.h
+    *.tab.c | *.yacc
+    {
+        $(YACC) -b $(1) -d $(FIRST_DEP) $(YFLAGS)
+    }
+FI
+
+IF "$(LEX)" != ""
+
+    *.yy.c | *.lex *.tab.h
+    {
+        $(LEX) -t $(FIRST_DEP) $(XFLAGS) > $(TARGET)
+    }
+FI

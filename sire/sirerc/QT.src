@@ -1,0 +1,45 @@
+
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  QT Configuration script
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+
+QTDIR = $(arg1) ;
+
+IF "$(QTDIR)" != ""
+
+    CFLAGS          = $(CFLAGS) -I$(QTDIR)/include/qt;
+    LFLAGS          = $(LFLAGS) -L$(QTDIR)/lib -lqt;
+    PATH            = "$(PATH):$(QTDIR)/bin" ;
+
+    // QT Rules
+
+    *.qt | *.h   // Auto generate class code
+    {
+       moc $(DEPS) -o $(TARGET)
+    }
+
+    *.h | *.uic         // Auto generate class header
+    {
+       uic $(1).h $(1).uic -o $(TARGET)
+    }
+
+    *.cxx | *.h *.uic   // Auto generate class code
+    {
+       uic -impl $(1).h $(1).uic -o $(TARGET)
+    }
+
+    *.sub.h | USER | *.h *.uic       // Auto generate derived class header
+    {
+       uic -subdecl U$(1) $(1).h $(1).uic -o $(TARGET)
+    }
+
+    *.sub.cxx | USER | *.sub.h *.uic   // Auto generate derived class code
+    {
+       uic -subimpl U$(1) $(1).sub.h $(1).uic -o $(TARGET)
+    }
+
+FI
+

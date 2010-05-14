@@ -1,0 +1,90 @@
+SET  AR
+    Set the environment variable AR to the default full path
+    to the object archiver.
+
+SET  QT [<path>]
+    Set the environment variable QTDIR to the specified path.
+    The INCLUDE, LFLAGS and PATH environment
+    variables are updated accordingly.
+    
+    Rules are defined for :-
+    
+    *.qt        - Auto generate class code (based on class header)
+    *.hxx       - Auto generate class header
+    *.cxx       - Auto generate class code (based of GUI config)
+    *.sub.hxx   - Auto generate derived class header 
+    *.sub.cxx   - Auto generate derived class code
+
+SET  GNU [<arch> [<path>]]
+    Set up to use the GNU development environment. If <arch> ios set to "-"
+    then the tools compile native other wise they cross compile for the
+    given architecture.
+    
+    Build rules are supplied for each tool. The following enviroment variables
+    are use to supply switches for the given tools.
+    
+    CFLAGS  - Compile flags for gcc
+    AFLAGS  - Assembler flags for as
+    MFLAGS  - Macro flags for the gasp
+    
+    The following environment variable are defined for each tool
+    
+    CC      - C   compiler
+    CCP     - C++ compiler
+    GASP    - Macro preprocessor
+    CPP     - C preprocessor
+    AS      - Assembler
+
+SET  YACC [<path>]
+    Set up to use the compiler compiler yacc (and lex). If these are not
+    present then byson (and flex) will be used.
+    
+    Build rules are supplied for each tool. The following enviroment variables
+    are use to supply switches for the given tools.
+    
+    *.tab.c | *.yacc {}
+    *.yy.c  | *.lex *.tab.h {}
+    
+    YFLAGS  - Compiler compiler flags for yacc
+    XFLAGS  - Lexical compiler flags for lex
+    
+    The following environment variable are defined for each tool
+    
+    YACC    - yacc/byson compiler
+    LEX     - lex/flex compiler   - Assembler
+
+SET  PYTHON [<python home>]
+    Set $(PYTHON) to the correct python interpreter. If specified the
+    $(PYTHONHOME) is also set.
+
+SET GCC [<path> [<exec_prefix>]]
+    Set GCC configures Sire for the GNU compilers. The following
+    environment variables are set.
+
+    CCP - Full path to the C++ compiler
+    CC  - Full path to the C compiler
+    F77 - Full path to the Fortran 77 compiler
+    GCJ - Full path to the Java compiler
+
+    The basic statement sets the environment variables to the
+    default path for the compiler. If the path is given this
+    specifies the directory in which the compilers have been installed
+    (eg. /usr/bin). The exec_prefix is used to set the GCC_EXEC_PREFIX
+    environment variable. This used by the compilers to locate required
+    libraries and data files.
+
+    The ARCH environment variable is used to specify a prefix for
+    cross-compilation using the GNU compilers. The value of the
+    environment variable should end witha hyphen '-'.
+
+    If the environment variable ARCH is set this is then used for
+    cross-compilation. The value of the variable is prepended to\
+    the compiler exacutable name and the switch '-I/usr/${ARCH}include'
+    is added to CFLAGS. As a minimum the path should be specified when
+    setting the ARCH environment variable.
+    
+SET  F77
+    Set the environment variable F77 to the default full path
+    to the Fortran 77 compiler.
+
+

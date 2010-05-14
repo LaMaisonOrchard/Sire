@@ -1,0 +1,4 @@
+
+
+F77 = <f77> ;
+F77 = `findfile - $(F77) /usr/bin/f77` ;

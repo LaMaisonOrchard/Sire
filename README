@@ -1,0 +1,42 @@
+Introduction
+------------
+
+Sire is a build utility. The build scripts (relations) are easy and flexable to
+write. For an example of a 'relations' file see 'sire/relations'. For further
+documentation on sire see 'http://the-hut.net/sire'.
+
+sire        --- Build utilty
+getinclude  --- Include dependence for C/C++
+msh         --- Minimal shell for use with sire (platform independence)
+
+To Build on Unix type platforms
+-------------------------------
+
+> cd ./sire
+> ./build.ksh
+
+This will attempt to build using the GNU C++ complier g++. The script can be edited to build with a native compiler.
+
+By default the build files will be installed into './install'. the script can also be modified to change this.
+
+To use sire for thye subsequent builds add the install directory to the PATH
+
+> PATH=${PATH}:`pwd`/instal
+
+To Build 'getinclude' (with 'sire')
+-----------------------------------
+
+> sire -C ./getinclude install -DINSTALL=`pwd`/install
+
+To Build 'msh' (with 'sire')
+----------------------------
+
+> sire -C ./msh install -DINSTALL=`pwd`/install
+
+To Build 'sire' with 'sire'
+---------------------------
+
+> sire -C ./sire install -DINSTALL=`pwd`/install
+
+However, this depends on 'getinclude' which must be built first.
+

@@ -1,0 +1,179 @@
+
+SET GCC $(arg1) $(arg2) ;
+
+// Objects
+
+IF "$(CCP)" != ""
+
+    *.o | *.C
+    {
+        $(CCP) -c $(DEPS) $(CFLAGS)
+    }
+
+    *.o | *.cc
+    {
+        $(CCP) -c $(DEPS) $(CFLAGS)
+    }
+
+    *.o | *.cxx
+    {
+        $(CCP) -c $(DEPS) $(CFLAGS)
+    }
+
+    *.o | *.cpp
+    {
+        $(CCP) -c $(DEPS) $(CFLAGS)
+    }
+
+    *.o | *.ii
+    {
+        $(CCP) -c $(DEPS) $(CFLAGS)
+    }
+
+    *.ii | *.C
+    {
+        $(CPP) -o $(TARGET) $(DEPS) $(CFLAGS)
+    }
+
+    *.ii | *.cc
+    {
+        $(CPP) -o $(TARGET) $(DEPS) $(CFLAGS)
+    }
+
+    *.ii | *.cxx
+    {
+        $(CPP) -o $(TARGET) $(DEPS) $(CFLAGS)
+    }
+
+    *.ii | *.cpp
+    {
+        $(CPP) -o $(TARGET) $(DEPS) $(CFLAGS)
+    }
+
+    *.s | *.C
+    {
+        $(CCP) -S -c $(DEPS) $(CFLAGS)
+    }
+
+    *.s | *.cc
+    {
+        $(CCP) -S -c $(DEPS) $(CFLAGS)
+    }
+
+    *.s | *.cxx
+    {
+        $(CCP) -S -c $(DEPS) $(CFLAGS)
+    }
+
+    *.s | *.cpp
+    {
+        $(CCP) -S -c $(DEPS) $(CFLAGS)
+    }
+
+    *.s | *.ii
+    {
+        $(CCP) -S -c $(DEPS) $(CFLAGS)
+    }
+
+    // Check for include dependencies
+
+    *.C
+    *.cc
+    *.h
+    *.[ch]xx
+    *.[ch]pp | TOUCH CONT | DUMMY `getinclude $(CFLAGS) $(TARGET)` ;
+
+FI
+
+IF "$(CC)" != ""
+
+    *.o | *.c
+    {
+        $(CC) -c $(DEPS) $(CFLAGS)
+    }
+
+    *.o | *.i
+    {
+        $(CC) -c $(DEPS) $(CFLAGS)
+    }
+
+    *.i | *.c
+    {
+        $(CPP) -o $(TARGET) $(DEPS) $(CFLAGS)
+    }
+
+    *.s | *.c
+    {
+        $(CC) -S -c $(DEPS) $(CFLAGS)
+    }
+
+    *.s | *.i
+    {
+        $(CC) -S -c $(DEPS) $(CFLAGS)
+    }
+
+    // Check for include dependencies
+
+    *.[ch] | TOUCH CONT | DUMMY `getinclude $(CFLAGS) $(TARGET)` ;
+
+FI
+
+IF "$(AS)" != ""
+
+    *.o | *.S
+    {
+        $(AS) -o $(TARGET) $(DEPS) $(AFLAGS)
+    }
+
+    *.o | *.s
+    {
+        $(AS) -f -o $(TARGET) $(DEPS) $(AFLAGS)
+    }
+
+FI
+
+
+IF "$(GASP)" != ""
+
+    // Pre processed assembly
+    *.s | *.S
+    {
+        $(GASP) -o $(TARGET) $(DEPS) $(MFLAGS)
+    }
+
+FI
+
+
+IF "$(JAVAC)" != ""
+
+    // Pre processed assembly
+    *.o | *.java
+    {
+        $(JAVAC) -o $(TARGET) $(DEPS) $(JFLAGS)
+    }
+
+    // Pre processed assembly
+    *.class | *.java
+    {
+        #$(JAVAC) -C -o $(TARGET) $(DEPS) $(JFLAGS)
+        $(JAVAC) $(DEPS) $(JFLAGS)
+    }
+
+    // Pre processed assembly
+    *.o | *.class
+    {
+        $(JAVAC) -o $(TARGET) $(DEPS) $(JFLAGS)
+    }
+
+    // Pre processed assembly
+    *.o | *.zip
+    {
+        $(JAVAC) -o $(TARGET) $(DEPS) $(JFLAGS)
+    }
+    // Pre processed assembly
+    *.o | *.jar
+    {
+        $(JAVAC) -o $(TARGET) $(DEPS) $(JFLAGS)
+    }
+
+FI

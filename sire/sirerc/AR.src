@@ -1,0 +1,9 @@
+
+// Configure to build an archive
+
+AR     = `findfile -x "/bin/ar" "/usr/bin/ar" "/usr/ucb/ar" "/usr/ccs/bin/ar"` ;
+AREXE  = ".a" ;
+
+IF "$(AR)" == ""
+    AR = "echo NOT SUPPORTED" ;
+FI

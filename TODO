@@ -1,0 +1,37 @@
+Sire is largly complete and is not under active development. There are two
+remaining issues.
+
+1) Portability
+
+Sire has been build on a number of platforms in the past. However, it has
+only been built under cygwin, solaris and linux (x86) recently. This version
+has only been built and tested under linux (x86). I currently only have
+access to linux (x86) and Windows XP and I have not attempted a Windows XP
+port yet.
+
+Any help with porting would be welcome.
+
+2) Nested Environment Variables
+
+Nested environment vaiables do not work correctly for target specific
+environment variables.
+
+e.g.
+
+fred_OBJ = fred.o common.o ;
+lois_OBJ = lois.o common.o ;
+
+#$(EXE) | $($(1)_OBJ)
+{
+  ...
+}
+
+
+running
+
+> sire fred
+
+will fail since the environoment variable '$($(1)_OBJ)' will expand to
+'$(fred_OBJ)'. But this will not then be expanded.
+
+To fix this we need to improve the late expansion of environment variables.
