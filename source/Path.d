@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////
+//
+//  Copyright 2024 david@the-hut.net
+//  All rights reserved
+//
+
 import std.stdio;
 import std.ascii;
 import std.format;

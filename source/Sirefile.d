@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////
+//
+//  Copyright 2024 david@the-hut.net
+//  All rights reserved
+//
+
 import std.stdio;
 import std.ascii;
 import std.array;
@@ -88,17 +94,25 @@ class Sirefile
                 // Check dependents
                 bool missingDeps = false;
                 SysTime newestDep;
-                foreach (dep ; deps)
+                
+                if (deps.length == 0)
                 {
-                    SysTime depTime = Build(dep);
-                    if (depTime == SysTime())
+                    newestDep = Clock.currTime;
+                }
+                else
+                {
+                    foreach (dep ; deps)
                     {
-                        missingDeps = true;
-                        break;
-                    }
-                    if (depTime > newestDep)
-                    {
-                        newestDep = depTime;
+                        SysTime depTime = Build(dep);
+                        if (depTime == SysTime())
+                        {
+                            missingDeps = true;
+                            break;
+                        }
+                        if (depTime > newestDep)
+                        {
+                            newestDep = depTime;
+                        }
                     }
                 }
 
@@ -207,7 +221,7 @@ class Sirefile
             this(Posn posn, string[] args)
             {
                 Token[] deps;
-                super(posn, args[0], Flags.CREATE | Flags.FORCE, deps, "git");
+                super(posn, args[0], Flags.CREATE, deps, "git");
                 this.target_dir = args[1];
                 this.repo       = args[2];
                 this.branch     = args[3];
@@ -220,10 +234,12 @@ class Sirefile
                 if (exists(this.target_dir ~ "/.git"))
                 {
                     // Nothing to do. It exists
+                    writeln("Present : ", this.repo);
                     rtn = true;
                 }
                 else
                 {
+                    writeln("Clone : ", this.repo);
                     string[] cmd = [Path.FindExe(env.Get("PATH"), "git"), "clone", "-b", this.branch, "--single-branch", "--recurse-submodules", this.repo, this.target_dir];
                     rtn = shell.Execute(cmd);
                 }
@@ -244,7 +260,7 @@ class Sirefile
             this(Posn posn, string[] args)
             {
                 Token[] deps;
-                super(posn, args[0]~"-update", Flags.CREATE | Flags.FORCE, deps, "git");
+                super(posn, args[0]~"-update", Flags.CREATE, deps, "git");
                 this.target_dir = args[1];
                 this.repo       = args[2];
                 this.branch     = args[3];
@@ -256,6 +272,7 @@ class Sirefile
                 
                 if (exists(this.target_dir ~ "/.git"))
                 {
+                    writeln("Update : ", this.repo);
                     string[] here = env.Get("PWD");
                     try
                     {
@@ -271,6 +288,7 @@ class Sirefile
                 else
                 {
                     // Clone it
+                    writeln("Clone : ", this.repo);
                     string[] cmd = [Path.FindExe(env.Get("PATH"), "git"), "clone", "-b", this.branch, "--single-branch", "--recurse-submodules", this.repo, this.target_dir];
                     rtn = shell.Execute(cmd);
                 }
@@ -311,7 +329,7 @@ class Sirefile
     		this.env.Set("SHELL", ["sire"]);
     		this.env.Set("SEP",   [pathSeparator]);
 
-            this.env.Set("DC", [FindExe("dmd", "ldc2", "gdc")]); // D compiler
+            this.env.Set("DC", [FindExe("dmd", "ldmd2", "gdc")]); // D compiler
 
             version(Windows)
             {

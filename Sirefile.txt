@@ -1,40 +1,35 @@
+//////////////////////////////////////////////////////////////////
+//
+//  Copyright 2024 david@the-hut.net
+//  All rights reserved
+//
 
- 
-INCLUDE Sirefile2.txt ;
+
+
 
 PY = <python> ;
 
-GIT [ harry ../Sire2 "git@github.com:LaMaisonOrchard/Sire.git" main ];
+GIT [ Repo ../Sire "git@github.com:LaMaisonOrchard/Sire.git" main ];
 
 SRC = 'source/*.d';
+OUT = output/${PLATFORM}_${OS};
 
-OBJ = ${SRC} : *.d : ${0}.o ;
+TARGET : Repo-update ${OUT}/sire${EXE};
 
-TARGET : harry-update sire${EXE};
-
-sire${EXE} : FORCE : source/app.d source/Path.d
+*/${OUT}/sire${EXE} : ${SRC}
 {
-import os
-list = os.environ["DEPS"].split("${SEP}")
-print("-of=${TARGET}" , list)
-
-list = os.environ["OBJ"].split("${SEP}")
-print(list)
+    mkdir ${0}/${OUT}
+    ${DC} -of=${TARGET} ${DEPS}
 }
 
 pre : QUIET :
 {
-print('hello world')
+    echo "hello world"
 }
 
 post : QUIET :
 {
-print('goodbye')
-}
-
-sire : ${SRC}
-{
-${DC} -o ${TARGET} ${DEPS}
+    echo "goodbye"
 }
 
 

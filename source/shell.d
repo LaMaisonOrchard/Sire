@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////
+//
+//  Copyright 2024 david@the-hut.net
+//  All rights reserved
+//
+
 module shell;
 
 
@@ -21,7 +27,7 @@ bool Execute(string[] cmd)
 }
 
 
-bool Execute(string script, ref Enviro env, bool quiet)
+bool Execute(string script, ref Enviro env, bool quiet) 
 {
     bool rtn = false;
     
@@ -106,7 +112,7 @@ private
 {
     bool InternalShell(string script, ref Enviro env)
     {
-        bool rtn = false;
+        bool rtn = true;
         string[] lines;
 
         SList!string cwdStack;
@@ -137,6 +143,13 @@ private
                     writeln(BuildText(args[1..$], ' '));
                     break;
                 
+                case "mkdir":
+                    foreach (dirEntries ; args[1..$])
+                    {
+                        mkdirRecurse(dirEntries);
+                    }
+                    break;
+                
                 case "cd":
                     cwdStack.insertFront(env.Get("CWD")[0]);
                     break;
@@ -150,6 +163,7 @@ private
                     else
                     {
                         // Error
+                        rtn = false;
                     }
                     break;
                 
