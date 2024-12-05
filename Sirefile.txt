@@ -12,13 +12,13 @@ PY = <python> ;
 GIT [ Repo ../Sire "git@github.com:LaMaisonOrchard/Sire.git" main ];
 
 SRC = 'source/*.d';
-OUT = output/${PLATFORM}_${OS};
+ID  = ${PLATFORM}_${OS};
 
-TARGET : Repo-update ${OUT}/sire${EXE};
+TARGET : Repo-update output/${ID}/sire${EXE};
 
-*/${OUT}/sire${EXE} : ${SRC}
+*/${ID}/sire${EXE} : ${SRC}
 {
-    mkdir ${0}/${OUT}
+    mkdir ${0}/${ID}
     ${DC} -of=${TARGET} ${DEPS}
 }
 

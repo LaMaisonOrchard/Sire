@@ -80,6 +80,7 @@ class Sirefile
         if (exists(target))
         {
             getTimes(target, accessTime, targetTime);
+            //writeln(target, " :: ", targetTime);
         }
 
         foreach (rule ; this.rules)
@@ -121,6 +122,7 @@ class Sirefile
                     break;
                 }
 
+                //writeln(target, " :: ", newestDep, " :: ", targetTime, " :: ", rule.isForce);
                 if ((newestDep > targetTime) || rule.isForce)
                 {
                     if (rule.isBuildable)
@@ -147,8 +149,13 @@ class Sirefile
                 break;
             }
         }
-
+        
         resolved[target] = targetTime;
+
+        if (targetTime == SysTime())
+        {
+            writeln("Failed to build : ", target);
+        }
 
         return targetTime;
     }
