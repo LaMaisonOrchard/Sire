@@ -1,0 +1,14 @@
+
+ 
+SHELL = <python>;
+${DC}
+${SIRE}
+ 
+fred : TOUCH : s*\*.d *.txt "D:/*" .\*  ../../*
+{
+    Do it
+}
+
+*.o : CREATE : *.h
+{
+}

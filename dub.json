@@ -1,0 +1,9 @@
+{
+	"authors": [
+		"david"
+	],
+	"copyright": "Copyright © 2024, David Orchard",
+	"description": "Build utility",
+	"license": "GPL",
+	"name": "sire"
+}

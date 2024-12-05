@@ -1,0 +1,40 @@
+
+ 
+INCLUDE Sirefile2.txt ;
+
+PY = <python> ;
+
+GIT [ harry ../Sire2 "git@github.com:LaMaisonOrchard/Sire.git" main ];
+
+SRC = 'source/*.d';
+
+OBJ = ${SRC} : *.d : ${0}.o ;
+
+TARGET : harry-update sire${EXE};
+
+sire${EXE} : FORCE : source/app.d source/Path.d
+{
+import os
+list = os.environ["DEPS"].split("${SEP}")
+print("-of=${TARGET}" , list)
+
+list = os.environ["OBJ"].split("${SEP}")
+print(list)
+}
+
+pre : QUIET :
+{
+print('hello world')
+}
+
+post : QUIET :
+{
+print('goodbye')
+}
+
+sire : ${SRC}
+{
+${DC} -o ${TARGET} ${DEPS}
+}
+
+
