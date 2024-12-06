@@ -21,10 +21,11 @@ import shell;
 
 enum Flags : int
 {
-    CREATE = 1,
-    TOUCH  = 2,
-    FORCE  = 4,
-    QUIET  = 8
+    CREATE   = 1,
+    TOUCH    = 2,
+    FORCE    = 4,
+    QUIET    = 8,
+    REQUIRED = 16
 };
 
 class SireException : Exception
@@ -115,7 +116,15 @@ class Sirefile
                 
                 if (deps.length == 0)
                 {
-                    newestDep = Clock.currTime;
+                    if (rule.isRequDeps())
+                    {
+                        // Can't use this rule
+                        continue;
+                    }
+                    else
+                    {
+                        newestDep = Clock.currTime;
+                    }
                 }
                 else
                 {
@@ -228,6 +237,7 @@ class Sirefile
             bool isCreate() {return ((this.flags & Flags.CREATE) != 0);}
             bool isTouch()  {return ((this.flags & Flags.TOUCH)  != 0);}
             bool isQuiet()  {return ((this.flags & Flags.QUIET)  != 0);}
+            bool isRequDeps()  {return ((this.flags & Flags.REQUIRED)  != 0);}
             bool isBuildable() {return (this.build !is null) &&(this.build.length != 0);}
 
             private
@@ -507,7 +517,8 @@ class Sirefile
                 if ((token.type == Type.CREATE)||
                     (token.type == Type.TOUCH) ||
                     (token.type == Type.FORCE) ||
-                    (token.type == Type.QUIET))
+                    (token.type == Type.QUIET) ||
+                    (token.type == Type.REQU))
                 {
                     do
                     {
@@ -517,6 +528,7 @@ class Sirefile
                             case Type.TOUCH:  flags |= Flags.TOUCH; break;
                             case Type.FORCE:  flags |= Flags.FORCE; break;
                             case Type.QUIET:  flags |= Flags.QUIET; break;
+                            case Type.REQU:   flags |= Flags.REQUIRED; break;
                             default: assert(false);
                         }
                         
@@ -783,6 +795,7 @@ private
 		CREATE,
         FORCE,
 		QUIET,
+		REQU,   // Requires dependents
 		INCLUDE,
 		NAME,
 		TEXT,   // General text
@@ -1345,11 +1358,12 @@ private
 			
 			switch (token.text)
 			{
-				case "TOUCH"   : token.type = Type.TOUCH;   break;
-				case "CREATE"  : token.type = Type.CREATE;  break;
-				case "FORCE"   : token.type = Type.FORCE;   break;
-				case "QUIET"   : token.type = Type.QUIET;   break;
-				case "INCLUDE" : token.type = Type.INCLUDE; break;
+				case "TOUCH"     : token.type = Type.TOUCH;   break;
+				case "CREATE"    : token.type = Type.CREATE;  break;
+				case "FORCE"     : token.type = Type.FORCE;   break;
+				case "QUIET"     : token.type = Type.QUIET;   break;
+				case "REQU_DEPS" : token.type = Type.REQU;    break;
+				case "INCLUDE"   : token.type = Type.INCLUDE; break;
 				default: token.type = Type.NAME; break;
 			}
 			
