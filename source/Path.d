@@ -17,9 +17,38 @@ import std.utf : byCodeUnit;
 
 import EnvVar;
 import TextUtils;
+import shell;
+
+
+class PathException : Exception
+{
+    this(string msg)
+    {
+        super(msg);
+    }
+}
 
 string FindExe(string[] path, string name)
 {
+    if (name.length == 0)
+    {
+        throw new PathException("Missing executable name");
+    }
+
+    if (isAbsolute(name))
+    {
+        // Nothing to look for
+        
+        if (exists(name))
+        {
+            return name;
+        }
+        else
+        {
+            return null;
+        }
+    }
+    
     foreach (dir ; path)
     {
         version(Windows)
@@ -68,10 +97,10 @@ string FindExe(string[] path, string name)
 
 string[] FindFiles(string match)
 {
-    if ((match.length >= 5) && (match[0..5] == "deps:"))
+    if ((match.length >= 5) && (match[0..5] == "run:"))
     {
         // Check the dependentcies
-        return FindDeps(SplitLine(match[5..$]));
+        return RunLine(SplitLine(match[5..$]));
     }
     else
     {
@@ -140,15 +169,6 @@ string TmpFile()
 
 private
 {
-    string[] FindDeps(string[] cmd)
-    {
-        string[] rtn;
-
-        // TODO
-        
-        return rtn;
-    }
-    
     string[] BuildFiles(string match)
     {
         string[] rtn;

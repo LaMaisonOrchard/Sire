@@ -88,6 +88,23 @@ class Sirefile
             auto match = rule.Match(target);
             if (match.matched)
             {
+                if (exists(target))
+                {
+                    if (!rule.isTouch())
+                    {
+                        // Can't update this target
+                        continue;
+                    }
+                }
+                else
+                {
+                    if (!rule.isCreate())
+                    {
+                        // Can't create this target
+                        continue;
+                    }
+                }
+                
                 auto env = new Enviro(this.env, false, match.parts);
 
                 auto deps = rule.Dependents(env);
@@ -119,7 +136,7 @@ class Sirefile
 
                 if (missingDeps)
                 {
-                    break;
+                    continue;
                 }
 
                 //writeln(target, " :: ", newestDep, " :: ", targetTime, " :: ", rule.isForce);

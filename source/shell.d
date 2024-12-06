@@ -19,11 +19,55 @@ import Path;
 import TextUtils;
 
 
+class ShellException : Exception
+{
+    this(string msg)
+    {
+        super(msg);
+    }
+}
+
+string[] RunLine(string[] cmd)
+{
+    if (cmd.length == 0)
+    {
+        throw new ShellException("Illegal command");
+    }
+    else if (exists(cmd[0]))
+    {
+        auto state = execute (cmd);
+        
+        if (state.status == 0)
+        {
+            return SplitLine(state.output);
+        }
+        else
+        {
+            throw new ShellException("Command [" ~ BuildText(cmd, ' ') ~ "] failed");
+        }
+    }
+    else
+    {
+        throw new ShellException(cmd[0] ~ " Does not exist");
+    }
+}
+
 bool Execute(string[] cmd)
 {
-    auto state = execute (cmd);
-    writeln(state.output);
-    return (state.status == 0);
+    if (cmd.length == 0)
+    {
+        throw new ShellException("Illegal command");
+    }
+    else if (exists(cmd[0]))
+    {
+        auto state = execute (cmd);
+        writeln(state.output);
+        return (state.status == 0);
+    }
+    else
+    {
+        throw new ShellException(cmd[0] ~ " Does not exist");
+    }
 }
 
 
@@ -89,9 +133,7 @@ bool Execute(string script, ref Enviro env, bool quiet)
 
             cmd ~= file;
 
-            auto state = execute (cmd);
-            rtn = (state.status == 0);
-            writeln(state.output);
+            rtn = Execute(cmd);
         }
     }
     catch (Exception ex)
@@ -168,9 +210,7 @@ private
                     break;
                 
                 default:
-                    auto state = execute (args);
-                    rtn = (state.status == 0);
-                    writeln(state.output);
+                    rtn = Execute(args);
                     break;
                 }
             }
