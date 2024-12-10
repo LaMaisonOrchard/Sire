@@ -9,6 +9,7 @@
 
 PY = <python> ;
 
+GIT [ Test ../Sire "git@github.com:LaMaisonOrchard/Sire.git" main ] fred harry;
 GIT [ Repo ../Sire "git@github.com:LaMaisonOrchard/Sire.git" main ];
 
 SRC = 'source/*.d';

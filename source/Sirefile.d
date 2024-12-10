@@ -252,9 +252,8 @@ class Sirefile
         
         class GitBuildRule : Rule
         {
-            this(Posn posn, string[] args)
+            this(Posn posn, string[] args, Token[] deps)
             {
-                Token[] deps;
                 super(posn, args[0], Flags.CREATE, deps, "git");
                 this.target_dir = args[1];
                 this.repo       = args[2];
@@ -291,9 +290,8 @@ class Sirefile
         
         class GitUpdateRule : Rule
         {
-            this(Posn posn, string[] args)
+            this(Posn posn, string[] args, Token[] deps)
             {
-                Token[] deps;
                 super(posn, args[0]~"-update", Flags.CREATE, deps, "git");
                 this.target_dir = args[1];
                 this.repo       = args[2];
@@ -363,7 +361,7 @@ class Sirefile
     		this.env.Set("SHELL", ["sire"]);
     		this.env.Set("SEP",   [pathSeparator]);
 
-            this.env.Set("DC", [FindExe("dmd", "ldmd2", "gdc")]); // D compiler
+            this.env.Set("DC", [FindExe("dmd", "ldmd2", "gdmd")]); // D compiler
 
             version(Windows)
             {
@@ -685,6 +683,7 @@ class Sirefile
         void ParseRuleGen(Token var)
         {
             string[] list;
+            Token[] deps;
             
             auto token = this.input.GetToken();
             Posn posn = token.posn;
@@ -703,7 +702,17 @@ class Sirefile
             }
             else
             {
+                auto env = new Enviro(this.env, true, list);
+                
                 token = this.input.GetToken();
+                while ((token.type == Type.NAME) ||
+                       (token.type == Type.TEXT) ||
+                       (token.type == Type.FILES))
+                {
+                    deps ~= token;
+                    token = this.input.GetToken();
+                }
+                
                 if (token.type != Type.SEMI_COLON)
                 {
                     Error(token, "Missing ;");
@@ -721,8 +730,8 @@ class Sirefile
                     else
                     {
                         // Build rules
-                        this.rules ~= new GitBuildRule(posn, list);
-                        this.rules ~= new GitUpdateRule(posn, list);
+                        this.rules ~= new GitBuildRule(posn, list, deps);
+                        this.rules ~= new GitUpdateRule(posn, list, deps);
                     }
                     break;
 
