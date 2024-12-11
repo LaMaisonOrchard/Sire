@@ -3,6 +3,7 @@
 //  Copyright 2024 david@the-hut.net
 //  All rights reserved
 //
+//@safe:
 
 import std.stdio;
 import std.file;
@@ -21,7 +22,13 @@ int main(string[] args)
         switch (args[i])
         {
             case "--help":
+                writeln("--help");
+                writeln("--version");
                 writeln("--in <sirefile> -C source");
+                return 0;
+                
+            case "--version":
+                writeln("Sire 0.0.0");
                 return 0;
                 
             case "--in":

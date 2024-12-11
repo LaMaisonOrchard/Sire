@@ -3,6 +3,7 @@
 //  Copyright 2024 david@the-hut.net
 //  All rights reserved
 //
+//@safe:
 
 import std.stdio;
 import std.ascii;

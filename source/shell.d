@@ -3,8 +3,7 @@
 //  Copyright 2024 david@the-hut.net
 //  All rights reserved
 //
-
-module shell;
+//@safe:
 
 
 import std.stdio;
@@ -288,7 +287,7 @@ private
                 idx += 1;
             }
 
-            if (idx < line.length-4)
+            if (idx+4 < line.length)
             {
                 if ((line[idx+0] == '$') &&
                     (line[idx+1] == '('))
