@@ -192,13 +192,17 @@ private
                     break;
                 
                 case "cd":
-                    cwdStack.insertFront(env.Get("CWD")[0]);
+                    if (args.length == 2)
+                    {
+                        cwdStack.insertFront(env.Get("PWD")[0]);
+                        env.Set("PWD", [args[1]]);
+                    }
                     break;
                 
                 case "pop":
                     if (!cwdStack.empty())
                     {
-                        env.Set("CWD", [cwdStack.front()]);
+                        env.Set("PWD", [cwdStack.front()]);
                         cwdStack.removeFront();
                     }
                     else
@@ -220,7 +224,7 @@ private
         // Rewind back to the start
         while (!cwdStack.empty())
         {
-            env.Set("CWD", [cwdStack.front()]);
+            env.Set("PWD", [cwdStack.front()]);
             cwdStack.removeFront();
         }
 
