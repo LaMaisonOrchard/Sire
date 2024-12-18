@@ -3,7 +3,7 @@
 //  Copyright 2024 david@the-hut.net
 //  All rights reserved
 //
-//@safe:
+@safe:
 
 
 import std.stdio;
@@ -196,6 +196,16 @@ private
                     {
                         cwdStack.insertFront(env.Get("PWD")[0]);
                         env.Set("PWD", [args[1]]);
+                        
+                        writeln("Now in : ", env.Get("PWD")[0]);
+                    }
+                    break;
+                
+                case "cp":
+                case "copy":
+                    if (args.length > 2)
+                    {
+                        Path.CopyFiles(args[1..$]);
                     }
                     break;
                 
@@ -204,6 +214,8 @@ private
                     {
                         env.Set("PWD", [cwdStack.front()]);
                         cwdStack.removeFront();
+                        
+                        writeln("Now in : ", env.Get("PWD")[0]);
                     }
                     else
                     {
@@ -213,6 +225,7 @@ private
                     break;
                 
                 default:
+                    args[0] = FindExe(env.Get("PATH"), args[0]);
                     rtn = Execute(args);
                     break;
                 }
@@ -226,6 +239,8 @@ private
         {
             env.Set("PWD", [cwdStack.front()]);
             cwdStack.removeFront();
+            
+            writeln("Now in : ", env.Get("PWD")[0]);
         }
 
         return rtn;

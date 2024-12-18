@@ -5,7 +5,7 @@
 //
 
 
-
+DUB = dub build;
 
 PY = <python> ;
 
@@ -19,8 +19,11 @@ TARGET : Repo-update output/${ID}/sire${EXE};
 
 */${ID}/sire${EXE} : ${SRC}
 {
+    echo $(DUB)
     mkdir ${0}/${ID}
     ${DC} -of=${TARGET} ${DEPS}
+
+    cp ${0} ${0}2
 }
 
 pre : QUIET :
@@ -31,6 +34,11 @@ pre : QUIET :
 post : QUIET :
 {
     echo "goodbye"
+}
+
+failed : QUIET :
+{
+    echo "ERROR"
 }
 
 

@@ -199,6 +199,22 @@ class Sirefile
         return rtn;
     }
 
+    bool Failed()
+    {
+        bool rtn = true;
+
+        if (this.failRule !is null)
+        {
+            rtn = this.failRule.Execute(this.env);
+        }
+        else
+        {
+            rtn = Post();
+        }
+
+        return rtn;
+    }
+
     private
     {
         class Rule
@@ -587,7 +603,11 @@ class Sirefile
                 // Create rule
                 if (target == "pre")
                 {
-                    if (this.preRule is null)
+                    if (depsList.length != 0)
+                    {
+                        Error(block, "Dependents are not permited for pre");
+                    }
+                    else if (this.preRule is null)
                     {
                         this.preRule = new Rule(block.posn, target, flags, depsList, block.text); 
                     }
@@ -598,13 +618,32 @@ class Sirefile
                 }
                 else if (target == "post")
                 {
-                    if (this.postRule is null)
+                    if (depsList.length != 0)
+                    {
+                        Error(block, "Dependents are not permited for post");
+                    }
+                    else if (this.postRule is null)
                     {
                         this.postRule = new Rule(block.posn, target, flags, depsList, block.text); 
                     }
                     else
                     {
                         Error(block, "Duplicate postamble");
+                    }
+                }
+                else if (target == "failed")
+                {
+                    if (depsList.length != 0)
+                    {
+                        Error(block, "Dependents are not permited for failed");
+                    }
+                    else if (this.failRule is null)
+                    {
+                        this.failRule = new Rule(block.posn, target, flags, depsList, block.text); 
+                    }
+                    else
+                    {
+                        Error(block, "Duplicate error handler");
                     }
                 }
                 else
@@ -779,6 +818,7 @@ class Sirefile
         Rule   preRule;
         Rule[] rules;
         Rule   postRule;
+        Rule   failRule;
         
         SysTime[string] resolved;
         
@@ -875,7 +915,6 @@ private
                     
             default:
                 throw new SireException(to!string(token.posn) ~ "Not expandable " ~ token.text);
-                break;
         }
 
         return ["UNKNOWN"];

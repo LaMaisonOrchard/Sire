@@ -21,7 +21,7 @@ import TextUtils;
 import shell;
 
 
-class PathException : Exception
+@safe class PathException : Exception
 {
     this(string msg)
     {
@@ -29,7 +29,7 @@ class PathException : Exception
     }
 }
 
-string FindExe(string[] path, string name)
+@safe string FindExe(string[] path, string name)
 {
     if (name.length == 0)
     {
@@ -54,7 +54,7 @@ string FindExe(string[] path, string name)
     {
         version(Windows)
         {
-            string rtn = dir ~ "/" ~ name;
+            string rtn = chainPath(dir, name).to!string();
             rtn = absolutePath(rtn);
             
             if (icmp(extension(name), ".exe") == 0)
@@ -85,7 +85,7 @@ string FindExe(string[] path, string name)
         }
         else
         {
-            string rtn = dir ~ "/" ~ name;
+            string rtn = chainPath(dir, name);
             rtn = absolutePath(rtn);
             if (exists(rtn))
             {
@@ -161,7 +161,65 @@ string [] ExpandFile(const(char)[] text)
 	return rtn;
 }
 
-string TmpFile()
+@trusted void CopyFiles(scope string[] files)   // MAKE SURE THIS IS SAFE
+{
+    assert(files.length >= 2);
+    
+    string   dest    = files[files.length-1];
+    string[] sources = files[0..$-1];
+
+    if ((sources.length == 1) &&
+        exists(sources[0]) &&
+        !isDir(sources[0]) &&
+        (!exists(dest) || !isDir(dest)))
+    {
+        // file to file copy
+        copy(sources[0], dest);
+        //writeln("Copy ", sources[0], " ==> ", dest);
+    }
+    else
+    {
+        if (!exists(dest))
+        {
+            mkdirRecurse(dest);
+            //writeln("Mkdir ", dest);
+        }
+
+        foreach (source ; sources)
+        {
+            scope string base = absolutePath(source);
+            
+            if (!exists(source))
+            {
+                writeln("Error : No such file : ", source);
+            }
+            else if (isDir(source))
+            {
+                foreach (string file ; dirEntries!false(source, SpanMode.breadth))
+                {
+                    scope string root = asRelativePath(absolutePath(file), base).to!string();
+
+                    if (isDir(file))
+                    {
+                        mkdirRecurse(chainPath(dest, root).to!string());
+                        //writeln("Mkdir ", chainPath(dest, root));
+                    }
+                    else
+                    {
+                        copy(file, chainPath(dest, root));
+                        //writeln("Copy ", file, " ==> ", chainPath(dest, root));
+                    }
+                }
+            }
+            else
+            {
+                copy(source, dest ~ "/" ~ source);
+            }
+        }
+    }
+}
+
+@safe string TmpFile()
 {
     // random id with 10 letters
     auto id = letters.byCodeUnit.randomSample(10).to!string;

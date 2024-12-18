@@ -12,10 +12,29 @@ import std.datetime;
 import Sirefile;
 import EnvVar;
 
+string[] scriptFiles=
+[
+    "Sirefile",
+    "sirefile",
+    "Jakefile",
+    "jakefile",
+    "Sirefile.txt",
+    "sirefile.txt"
+];
+
 int main(string[] args)
 {
-    string sirefile = "Sirefile.txt"; // Default
+    string sirefile;
     string[] targets;
+
+    foreach (name ; scriptFiles)
+    {
+        if (exists(name))
+        {
+            sirefile = name;
+            break;
+        }
+    }
     
     for (int i = 1; (i < args.length); i += 1)
     {
@@ -53,6 +72,12 @@ int main(string[] args)
         }
     }
 
+    if (sirefile is null)
+    {
+        writeln("No Sirefile");
+        return -1;
+    }
+
     if (targets.length == 0)
     {
         targets = ["TARGET"];
@@ -88,7 +113,15 @@ int main(string[] args)
             break;
         }
     }
-    config.Post();
+
+    if (time == SysTime())
+    {
+        config.Failed();
+    }
+    else
+    {
+        config.Post();
+    }
 
     return (time == SysTime())?(-1):(0);
 }
