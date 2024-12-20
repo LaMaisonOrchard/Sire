@@ -105,22 +105,32 @@ int main(string[] args)
     config.Pre();
 
     SysTime time;
-    foreach (target ; targets)
+    try
     {
-        time = config.Build(target);
+        foreach (target ; targets)
+        {
+            time = config.Build(target);
+            if (time == SysTime())
+            {
+                writeln("Failed to build [", target , "]");
+                break;
+            }
+        }
+
         if (time == SysTime())
         {
-            break;
+            config.Failed();
+        }
+        else
+        {
+            config.Post();
         }
     }
-
-    if (time == SysTime())
+    catch (Exception ex)
     {
+        writeln(ex.message());
         config.Failed();
-    }
-    else
-    {
-        config.Post();
+        time = SysTime.init;
     }
 
     return (time == SysTime())?(-1):(0);

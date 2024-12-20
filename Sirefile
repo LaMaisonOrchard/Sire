@@ -19,7 +19,7 @@ TARGET : Repo-update output/${ID}/sire${EXE};
 
 */${ID}/sire${EXE} : ${SRC}
 {
-    echo $(DUB)
+    echo Build : ${TARGET}
     mkdir ${0}/${ID}
     ${DC} -of=${TARGET} ${DEPS}
 

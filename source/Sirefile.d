@@ -14,6 +14,7 @@ import std.path;
 import std.conv;
 import std.typecons;
 import std.datetime;
+import std.format;
 
 import EnvVar;
 import Path;
@@ -29,10 +30,28 @@ enum Flags : int
     REQUIRED = 16
 };
 
+enum OutputLevel : int
+{
+    VERBOSE  = 0,
+    NORMAL   = 1,
+    QUIET    = 2
+};
+
 class SireException : Exception
 {
     this(string msg)
     {
+        super(msg);
+    }
+
+    this(Token token, string[] text ...)
+    {
+        string msg = format("ERR <%s:%d:%d>", token.posn.name, token.posn.line, token.posn.column);
+        foreach (part ; text)
+        {
+            msg  ~= " ";
+            msg  ~= part;
+        }
         super(msg);
     }
 }
@@ -167,6 +186,10 @@ class Sirefile
                                 targetTime = newestDep;
                             }
                         }
+                        else
+                        {
+                            Error(rule.token(), "Build failed!");
+                        }
                     }
                     else
                     {
@@ -178,11 +201,6 @@ class Sirefile
         }
         
         resolved[target] = targetTime;
-
-        if (targetTime == SysTime())
-        {
-            writeln("Failed to build : ", target);
-        }
 
         return targetTime;
     }
@@ -221,7 +239,7 @@ class Sirefile
         {
             this(Posn posn, string target, int flags, Token[] deps, string build)
             {
-                this.posn   = posn;
+                this.id     = Token(posn, target);
                 this.target = target;
                 this.flags  = flags;
                 this.deps   = deps;
@@ -232,6 +250,8 @@ class Sirefile
             {
                 return TextUtils.Match(this.target, target);
             }
+
+            Token token() { return this.id;}
 
             string[] Dependents(Enviro env)
             {
@@ -247,7 +267,20 @@ class Sirefile
 
             bool Execute(Enviro env)
             {
-                return shell.Execute(this.build, env, this.isQuiet);
+                bool rtn;
+                
+                auto original = env.Get("QUIET");
+                
+                if (this.isQuiet)
+                {
+                    env.Set("QUIET", ["2"]);
+                }
+                
+                rtn = shell.Execute(this.build, env, (env.Get("QUIET")[0] == "2"));
+                    
+                env.Set("QUIET",original);
+
+                return rtn;
             }
 
             bool isForce()  {return ((this.flags & Flags.FORCE)  != 0) || (this.deps.length == 0);}
@@ -259,7 +292,7 @@ class Sirefile
 
             private
             {
-                Posn posn;
+                Token id;
                 string target;
                 int flags;
                 Token[] deps;
@@ -379,6 +412,24 @@ class Sirefile
     		this.env.Set("SEP",   [pathSeparator]);
 
             this.env.Set("DC", [FindExe("dmd", "ldmd2", "gdmd")]); // D compiler
+
+            if (this.env.Get("QUIET") is null)
+            {
+                // Default quiet level
+                this.env.Set("QUIET", ["1"]);
+                this.quiet = OutputLevel.NORMAL;
+            }
+            else
+            {
+                switch (this.env.Get("QUIET")[0])
+                {
+                    case "0": this.quiet = OutputLevel.VERBOSE; break;
+                    case "1": this.quiet = OutputLevel.NORMAL; break;
+                    case "2": this.quiet = OutputLevel.QUIET; break;
+                    case "":  this.quiet = OutputLevel.NORMAL; this.env.Set("QUIET", ["1"]); break;
+                    default:  throw new SireException ("Invalid QUIET setting : " ~ this.env.Get("QUIET")[0]);
+                }
+            }
 
             version(Windows)
             {
@@ -812,7 +863,7 @@ class Sirefile
 		
 		void Error(Token token, string[] text ...)
 		{
-			writeln(token.posn, text);
+            throw new SireException (token, text);
 		}
 
         Rule   preRule;
@@ -824,7 +875,8 @@ class Sirefile
         
 		InputStack input;
 
-        Enviro env;
+        Enviro      env;
+        OutputLevel quiet = OutputLevel.NORMAL;
 	}
 }
 
@@ -859,6 +911,12 @@ private
 		{
 			this.text = text;
 			this.type = type;
+		}
+		
+		this(Posn posn, string text)
+		{
+			this.text = text;
+			this.posn = posn;
 		}
 		
 		string text;

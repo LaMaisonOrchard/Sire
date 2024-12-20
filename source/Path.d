@@ -3,7 +3,7 @@
 //  Copyright 2024 david@the-hut.net
 //  All rights reserved
 //
-//@safe:
+@safe:
 
 import std.stdio;
 import std.ascii;
@@ -21,7 +21,7 @@ import TextUtils;
 import shell;
 
 
-@safe class PathException : Exception
+class PathException : Exception
 {
     this(string msg)
     {
@@ -29,7 +29,7 @@ import shell;
     }
 }
 
-@safe string FindExe(string[] path, string name)
+string FindExe(string[] path, string name)
 {
     if (name.length == 0)
     {
@@ -147,11 +147,14 @@ string [] ExpandFile(const(char)[] text)
 			{
 				if ((root.length == 0) || isDir(root))
 				{
-					foreach (entry ; dirEntries(root, step, SpanMode.shallow, true))
-					{
-						next ~= entry.name();
-					}
-				}
+                    () @trusted
+                    {
+    					foreach (entry ; dirEntries(root, step, SpanMode.shallow, true))
+    					{
+    						next ~= entry.name();
+    					}
+    				}();
+                }
 			}
 			
 			rtn = next;
@@ -161,7 +164,7 @@ string [] ExpandFile(const(char)[] text)
 	return rtn;
 }
 
-@trusted void CopyFiles(scope string[] files)   // MAKE SURE THIS IS SAFE
+void CopyFiles(scope string[] files)   // MAKE SURE THIS IS SAFE
 {
     assert(files.length >= 2);
     
@@ -195,21 +198,24 @@ string [] ExpandFile(const(char)[] text)
             }
             else if (isDir(source))
             {
-                foreach (string file ; dirEntries!false(source, SpanMode.breadth))
+                () @trusted
                 {
-                    scope string root = asRelativePath(absolutePath(file), base).to!string();
+                    foreach (string file ; dirEntries!false(source, SpanMode.breadth))
+                    {
+                        scope string root = asRelativePath(absolutePath(file), base).to!string();
 
-                    if (isDir(file))
-                    {
-                        mkdirRecurse(chainPath(dest, root).to!string());
-                        //writeln("Mkdir ", chainPath(dest, root));
+                        if (isDir(file))
+                        {
+                            mkdirRecurse(chainPath(dest, root).to!string());
+                            //writeln("Mkdir ", chainPath(dest, root));
+                        }
+                        else
+                        {
+                            copy(file, chainPath(dest, root));
+                            //writeln("Copy ", file, " ==> ", chainPath(dest, root));
+                        }
                     }
-                    else
-                    {
-                        copy(file, chainPath(dest, root));
-                        //writeln("Copy ", file, " ==> ", chainPath(dest, root));
-                    }
-                }
+                }();
             }
             else
             {
@@ -219,7 +225,7 @@ string [] ExpandFile(const(char)[] text)
     }
 }
 
-@safe string TmpFile()
+string TmpFile()
 {
     // random id with 10 letters
     auto id = letters.byCodeUnit.randomSample(10).to!string;
@@ -305,17 +311,20 @@ private
         }
         else
         {
-            foreach (entry ; dirEntries(base, match[0 .. end], SpanMode.shallow))
+            () @trusted
             {
-                if (end < match.length)
+                foreach (entry ; dirEntries(base, match[0 .. end], SpanMode.shallow))
                 {
-                    rtn ~= BuildFiles(base ~ '/' ~ baseName(entry.name()), match[end+1 .. $]);
+                    if (end < match.length)
+                    {
+                        rtn ~= BuildFiles(base ~ '/' ~ baseName(entry.name()), match[end+1 .. $]);
+                    }
+                    else
+                    {
+                        rtn ~= (base ~ '/' ~ baseName(entry.name()));
+                    }
                 }
-                else
-                {
-                    rtn ~= (base ~ '/' ~ baseName(entry.name()));
-                }
-            }
+            }();
         }
 
         return rtn;
