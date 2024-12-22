@@ -155,8 +155,10 @@ private
     {
         bool rtn = true;
         string[] lines;
-
+        
         SList!string cwdStack;
+
+        env.EnableRestore();
 
         // Read the lines
         int idx = 0;
@@ -233,13 +235,12 @@ private
             
             idx += 1;
         }
-
+        
         // Rewind back to the start
-        while (!cwdStack.empty())
+        env.Restore();
+
+        if (!cwdStack.empty())
         {
-            env.Set("PWD", [cwdStack.front()]);
-            cwdStack.removeFront();
-            
             writeln("Now in : ", env.Get("PWD")[0]);
         }
 

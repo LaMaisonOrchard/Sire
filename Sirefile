@@ -24,16 +24,21 @@ TARGET : Repo-update output/${ID}/sire${EXE};
     ${DC} -of=${TARGET} ${DEPS}
 
     cp ${0} ${0}2
+
+    cd ..
+    echo $(PWD)
 }
 
 pre : QUIET :
 {
     echo "hello world"
+    echo $(PWD)
 }
 
 post : QUIET :
 {
     echo "goodbye"
+    echo $(PWD)
 }
 
 failed : QUIET :

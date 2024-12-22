@@ -126,7 +126,7 @@ class Sirefile
                     }
                 }
                 
-                auto env = new Enviro(this.env, false, match.parts);
+                auto env = new Enviro(this.env, match.parts);
 
                 auto deps = rule.Dependents(env);
 
@@ -754,7 +754,7 @@ class Sirefile
                     auto result = Match(match1.text, entry);
                     if (result.matched)
                     {
-                        list2 ~= ExpandVar(match2.text, new Enviro(this.env, true, result.parts));
+                        list2 ~= ExpandVar(match2.text, new Enviro(this.env, result.parts));
                     }
                 }
                 list = list2;
@@ -793,7 +793,7 @@ class Sirefile
             }
             else
             {
-                auto env = new Enviro(this.env, true, list);
+                auto env = new Enviro(this.env, list);
                 
                 token = this.input.GetToken();
                 while ((token.type == Type.NAME) ||

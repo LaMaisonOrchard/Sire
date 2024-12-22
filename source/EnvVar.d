@@ -26,18 +26,34 @@ class EnviroException : Exception
 
 class Enviro
 {
-    this(bool blind = false, string[] param = [])
+    this(string[] param = [])
     {
         this.base  = null;
         this.param = param;
-        this.blind = blind;
     }
     
-    this(Enviro base, bool blind, string[] param = [])
+    this(Enviro base, string[] param = [])
     {
         this.base  = base;
         this.param = param;
-        this.blind = blind;
+    }
+
+    void EnableRestore()
+    {
+        this.isRewindable = true;
+    }
+
+    void Restore()
+    {
+        this.isRewindable = false;
+
+        foreach (name, value ; this.rewind)
+        {
+            this.Set(name, value);
+        }
+
+        // Reset the arraY
+        this.rewind = (string[][string]).init;
     }
 
     string[] Get(const(char)[] name)
@@ -89,6 +105,12 @@ class Enviro
     
     void   Set(const(char)[] name, string[] value)
     {
+        if (this.isRewindable && ((name in this.rewind) is null))
+        {
+            // Record the original value
+            this.rewind[name] = Get(name);
+        }
+        
         if (name == "PWD")
         {
             try
@@ -103,15 +125,12 @@ class Enviro
         {
             localVar[name] = value;
             
-            if (!this.blind)
+            auto tmp = BuildText(value, pathSeparator[0]);
+            if (tmp is null)
             {
-                auto tmp = BuildText(value, pathSeparator[0]);
-                if (tmp is null)
-                {
-                    tmp = "";
-                }
-                environment[name] = tmp;
+                tmp = "";
             }
+            environment[name] = tmp;
         }
     }
 
@@ -119,9 +138,10 @@ class Enviro
     {
         Enviro base;
         string[] param;
-        bool blind;        // Don't update the system environment
+        bool isRewindable;        // Don't update the system environment
 	
 	    string[][string] localVar;
+	    string[][string] rewind;
     }
 }
 
