@@ -85,7 +85,7 @@ string FindExe(string[] path, string name)
         }
         else
         {
-            string rtn = chainPath(dir, name);
+            string rtn = chainPath(dir, name).to!string() ;
             rtn = absolutePath(rtn);
             if (exists(rtn))
             {
@@ -200,7 +200,7 @@ void CopyFiles(scope string[] files)   // MAKE SURE THIS IS SAFE
             {
                 () @trusted
                 {
-                    foreach (string file ; dirEntries!false(source, SpanMode.breadth))
+                    foreach (string file ; dirEntries(source, SpanMode.breadth))
                     {
                         scope string root = asRelativePath(absolutePath(file), base).to!string();
 
