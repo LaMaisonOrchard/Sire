@@ -35,17 +35,30 @@ int main(string[] args)
             break;
         }
     }
+
+    OutputLevel quiet;
+    switch (GetEnv("QUIET"))
+    {
+        case "0": quiet = OutputLevel.VERBOSE; break;
+        case "1": quiet = OutputLevel.NORMAL; break;
+        case "2": quiet = OutputLevel.QUIET; break;
+        case "":  
+        default:  quiet = OutputLevel.NORMAL; break;
+    }
     
     for (int i = 1; (i < args.length); i += 1)
     {
         switch (args[i])
         {
+            case "-h":
+            case "-help":
             case "--help":
                 writeln("--help");
                 writeln("--version");
-                writeln("--in <sirefile> -C source");
+                writeln("[--in <sirefile>] [-C <path>] [--verbose | --normal | --quiet] {<targets>}");
                 return 0;
                 
+            case "-i":
             case "--version":
                 writeln("Sire 0.0.0");
                 return 0;
@@ -56,6 +69,18 @@ int main(string[] args)
                 {
                     sirefile = args[i];
                 }
+                break;
+                
+            case "--verbose":
+                quiet = OutputLevel.VERBOSE;
+                break;
+                
+            case "--normal":
+                quiet = OutputLevel.NORMAL;
+                break;
+                
+            case "--quiet":
+                quiet = OutputLevel.QUIET;
                 break;
                 
             case "-C":
@@ -89,11 +114,11 @@ int main(string[] args)
     {
         if (sirefile == "-")
         {
-            config = new Sirefile.Sirefile(stdin);
+            config = new Sirefile.Sirefile(stdin, quiet);
         }
         else
         {
-            config = new Sirefile.Sirefile(sirefile);
+            config = new Sirefile.Sirefile(sirefile, quiet);
         }
     }
     catch (Exception ex)

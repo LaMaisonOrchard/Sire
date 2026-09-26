@@ -58,22 +58,24 @@ class SireException : Exception
 
 class Sirefile
 {
-	this(File fp)
+	this(File fp, OutputLevel quiet)
 	{
         DefaultEnv();
         
         this.input = new InputStack();
         this.input.Push("<stdin>", fp);
+        this.quiet = quiet;
         Parse();
 	}
     
-	this(string file)
+	this(string file, OutputLevel quiet)
 	{
         DefaultEnv();
         
         this.input = new InputStack();
         auto fp = File(file, "r");
         this.input.Push(file, fp);
+        this.quiet = quiet;
         Parse();
 	}
 
@@ -127,8 +129,10 @@ class Sirefile
                 }
                 
                 auto env = new Enviro(this.env, match.parts);
+                env.Set("TARGET", [target]);
 
                 auto deps = rule.Dependents(env);
+                env.Set("DEPS", deps);
 
                 // Check dependents
                 bool missingDeps = false;
@@ -143,7 +147,8 @@ class Sirefile
                     }
                     else
                     {
-                        newestDep = Clock.currTime;
+                        // Oldest time
+                        newestDep = SysTime(0);
                     }
                 }
                 else
@@ -168,13 +173,16 @@ class Sirefile
                     continue;
                 }
 
+                if (this.quiet == OutputLevel.VERBOSE)
+                {
+                    writeln(target, " ==> ", rule.token().posn.toString(), " ", rule.token().text);
+                }
+                
                 //writeln(target, " :: ", newestDep, " :: ", targetTime, " :: ", rule.isForce);
                 if ((newestDep > targetTime) || rule.isForce)
                 {
                     if (rule.isBuildable)
                     {
-                        env.Set("TARGET", [target]);
-                        env.Set("DEPS", deps);
                         if (rule.Execute(env))
                         {
                             if (exists(target))
@@ -300,6 +308,36 @@ class Sirefile
             }
         }
         
+        class IncludeRule : Rule
+        {
+            this(Posn posn, string[] args, Token[] deps)
+            {
+                super(posn, args[0], Flags.TOUCH, deps, "include");
+                this.args = args[1 .. $];
+            }
+
+            override string[] Dependents(Enviro env)
+            {
+                string[] deps;
+                string file = env.Get("TARGET")[0];
+
+                //@@ TODO Find include dependents
+                writeln("@@ TODO INCLUDE ", file, " :: ", args);
+
+                return deps ~ super.Dependents(env);
+            }
+
+            override bool Execute(Enviro env)
+            {
+                return true;
+            }
+
+            private
+            {
+                string[] args;
+            }
+        }
+        
         class GitBuildRule : Rule
         {
             this(Posn posn, string[] args, Token[] deps)
@@ -342,7 +380,7 @@ class Sirefile
         {
             this(Posn posn, string[] args, Token[] deps)
             {
-                super(posn, args[0]~"-update", Flags.CREATE, deps, "git");
+                super(posn, args[0]~"-update", Flags.CREATE | Flags.TOUCH, deps, "git");
                 this.target_dir = args[1];
                 this.repo       = args[2];
                 this.branch     = args[3];
@@ -410,25 +448,20 @@ class Sirefile
     		this.env.Set("CWD",   [getcwd()]);
     		this.env.Set("SHELL", ["sire"]);
     		this.env.Set("SEP",   [pathSeparator]);
+            
+            this.env.Set("DC", [FindExe("dmd", "ldmd2", "gdmd", "gdc")]); // D compiler
+            this.env.Set("CC", [FindExe("gcc", "clang")]); // C compiler
+            this.env.Set("CPP", [FindExe("g++", "clang++")]); // C++ compiler
+            this.env.Set("FORTRAN", [FindExe("gfortran", "ifort")]); // Fortran compiler
+            this.env.Set("GO", [FindExe("gccgo", "go")]); // Go compiler
+            this.env.Set("MOD2", [FindExe("gm2")]); // Modula-2 compiler
 
-            this.env.Set("DC", [FindExe("dmd", "ldmd2", "gdmd")]); // D compiler
-
-            if (this.env.Get("QUIET") is null)
+            switch (this.quiet)
             {
-                // Default quiet level
-                this.env.Set("QUIET", ["1"]);
-                this.quiet = OutputLevel.NORMAL;
-            }
-            else
-            {
-                switch (this.env.Get("QUIET")[0])
-                {
-                    case "0": this.quiet = OutputLevel.VERBOSE; break;
-                    case "1": this.quiet = OutputLevel.NORMAL; break;
-                    case "2": this.quiet = OutputLevel.QUIET; break;
-                    case "":  this.quiet = OutputLevel.NORMAL; this.env.Set("QUIET", ["1"]); break;
-                    default:  throw new SireException ("Invalid QUIET setting : " ~ this.env.Get("QUIET")[0]);
-                }
+                case OutputLevel.VERBOSE: this.env.Set("QUIET", ["0"]); break;
+                case OutputLevel.NORMAL:  this.env.Set("QUIET", ["1"]); break;
+                case OutputLevel.QUIET:   this.env.Set("QUIET", ["2"]); break;
+                default:  this.env.Set("QUIET", ["1"]); break;
             }
 
             version(Windows)
@@ -473,6 +506,7 @@ class Sirefile
 		void Parse()
 		{
 			auto token = this.input.GetToken();
+            
 			while (token.type != Type.EOF)
 			{
 				switch(token.type)
@@ -548,8 +582,7 @@ class Sirefile
                         break;
                 }
                     
-                token = this.input.GetToken();
-                    
+                token = this.input.GetToken();                    
             }
         }
         
@@ -652,11 +685,11 @@ class Sirefile
             foreach (target ; targetList)
             {
                 // Create rule
-                if (target == "pre")
+                if (target == "PRE")
                 {
                     if (depsList.length != 0)
                     {
-                        Error(block, "Dependents are not permited for pre");
+                        Error(block, "Dependents are not permited for PRE");
                     }
                     else if (this.preRule is null)
                     {
@@ -667,11 +700,11 @@ class Sirefile
                         Error(block, "Duplicate preamble");
                     }
                 }
-                else if (target == "post")
+                else if (target == "POST")
                 {
                     if (depsList.length != 0)
                     {
-                        Error(block, "Dependents are not permited for post");
+                        Error(block, "Dependents are not permited for POST");
                     }
                     else if (this.postRule is null)
                     {
@@ -682,11 +715,11 @@ class Sirefile
                         Error(block, "Duplicate postamble");
                     }
                 }
-                else if (target == "failed")
+                else if (target == "FAILED")
                 {
                     if (depsList.length != 0)
                     {
-                        Error(block, "Dependents are not permited for failed");
+                        Error(block, "Dependents are not permited for FAILED");
                     }
                     else if (this.failRule is null)
                     {
@@ -823,6 +856,18 @@ class Sirefile
                         // Build rules
                         this.rules ~= new GitBuildRule(posn, list, deps);
                         this.rules ~= new GitUpdateRule(posn, list, deps);
+                    }
+                    break;
+
+                case "INCLUDES":
+                    if (list.length < 1)
+                    {
+                        Error(var, "Incorrent arguments to INCLUDES");
+                    }
+                    else
+                    {
+                        // Build rules
+                        this.rules ~= new IncludeRule(posn, list, deps);
                     }
                     break;
 
@@ -972,7 +1017,7 @@ private
                 return list;
                     
             default:
-                throw new SireException(to!string(token.posn) ~ "Not expandable " ~ token.text);
+                throw new SireException(to!string(token.posn) ~ "Not expandable(2) " ~ token.text);
         }
 
         return ["UNKNOWN"];

@@ -24,6 +24,11 @@ class EnviroException : Exception
     }
 }
 
+string GetEnv(const(char)[] name)
+{
+    return environment.get(name, null);
+}
+
 class Enviro
 {
     this(string[] param = [])
@@ -90,7 +95,7 @@ class Enviro
                 }
                 else
                 {
-                    auto tmp = SplitText(environment.get(split.name, null), pathSeparator[0]);
+                    auto tmp = SplitText(GetEnv(split.name), pathSeparator[0]);
                     rtn ~= SpliceList(tmp, split.start, split.end);
                 }
             }

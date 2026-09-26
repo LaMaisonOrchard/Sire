@@ -29,6 +29,55 @@ class PathException : Exception
     }
 }
 
+bool hasPath(string text)
+{
+    foreach (c ; text)
+    {
+        if ((text[0] == '\\') || (text[0] == '/'))
+        {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+string exeName(string name)
+{
+    version(Windows)
+    {
+        if ((extension(name) == ".exe") && exists(name))
+        {
+            return name;
+        }
+        else if ((extension(name) == ".bat") && exists(name))
+        {
+            return name;
+        }
+        else if (exists(name ~ ".exe"))
+        {
+            return name ~ ".exe";
+        }
+        else if (exists(name ~ ".bat"))
+        {
+            return name ~ ".bat";
+        }
+    }
+    else
+    {
+        if (exists(name))
+        {
+            return name;
+        }
+        else if ((extension(name) is null) && exists(name ~ ".sh"))
+        {
+            return name ~ ".sh";
+        }
+    }
+    
+    return null;
+}
+
 string FindExe(string[] path, string name)
 {
     if (name.length == 0)
@@ -36,61 +85,30 @@ string FindExe(string[] path, string name)
         throw new PathException("Missing executable name");
     }
 
-    if (isAbsolute(name))
+    // Explicit path
+    if (hasPath(name))
     {
-        // Nothing to look for
+        return exeName(name);
+    }
+    
+    version(Windows)
+    {
+        string localName = exeName(asAbsolutePath(name).to!string());
         
-        if (exists(name))
+        if (localName !is null)
         {
-            return name;
-        }
-        else
-        {
-            return null;
+            return localName;
         }
     }
     
     foreach (dir ; path)
     {
-        version(Windows)
+        string rtn = chainPath(dir, name).to!string();
+        rtn = asAbsolutePath(absolutePath(rtn)).to!string();
+        
+        if (rtn !is null)
         {
-            string rtn = chainPath(dir, name).to!string();
-            rtn = absolutePath(rtn);
-            
-            if (icmp(extension(name), ".exe") == 0)
-            {
-                if (exists(rtn))
-                {
-                    return rtn;
-                }
-            }
-            else  if (icmp(extension(name), ".bat") == 0)
-            {
-                if (exists(rtn))
-                {
-                    return rtn;
-                }
-            }
-            else 
-            {
-                if (exists(rtn ~ ".exe"))
-                {
-                    return rtn ~ ".exe";
-                }
-                if (exists(rtn ~ ".bat"))
-                {
-                    return rtn ~ ".bat";
-                }
-            }
-        }
-        else
-        {
-            string rtn = chainPath(dir, name);
-            rtn = absolutePath(rtn);
-            if (exists(rtn))
-            {
-                return rtn;
-            }
+            return rtn;
         }
     }
     return null;

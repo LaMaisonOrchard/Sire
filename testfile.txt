@@ -1,0 +1,23 @@
+
+
+TARGET
+{
+echo bill
+}
+
+file1 = <\Projects\Sire\sire>;
+file2 = <D:\Projects\Sire\sire>;
+file3 = <./sire>;
+file4 = <sire>;
+PY = <python> ;
+
+PRE
+{
+echo run
+echo ${file1}
+echo ${file2}
+echo ${file3}
+echo ${file4}
+echo ${PY}
+echo ${SIRE}
+}

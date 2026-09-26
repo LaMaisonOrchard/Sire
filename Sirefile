@@ -8,14 +8,17 @@
 DUB = dub build;
 
 PY = <python> ;
+CFLAGS = "-I=Inc" ;
 
 GIT [ Test ../Sire "git@github.com:LaMaisonOrchard/Sire.git" main ] fred harry;
 GIT [ Repo ../Sire "git@github.com:LaMaisonOrchard/Sire.git" main ];
+INCLUDES [ *.h ${CFLAGS} ];
+INCLUDES [ *.cpp ${CFLAGS} ];
 
 SRC = 'source/*.d';
 ID  = ${PLATFORM}_${OS};
 
-TARGET : Repo-update output/${ID}/sire${EXE};
+TARGET : output/${ID}/sire${EXE} fred.cpp;
 
 */${ID}/sire${EXE} : ${SRC}
 {
@@ -29,19 +32,19 @@ TARGET : Repo-update output/${ID}/sire${EXE};
     echo $(PWD)
 }
 
-pre : QUIET :
+PRE : QUIET :
 {
     echo "hello world"
     echo $(PWD)
 }
 
-post : QUIET :
+POST : QUIET :
 {
     echo "goodbye"
     echo $(PWD)
 }
 
-failed : QUIET :
+FAILED : QUIET :
 {
     echo "ERROR"
 }
