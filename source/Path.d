@@ -104,7 +104,7 @@ string FindExe(string[] path, string name)
     foreach (dir ; path)
     {
         string rtn = chainPath(dir, name).to!string();
-        rtn = asAbsolutePath(absolutePath(rtn)).to!string();
+        rtn = exeName(asAbsolutePath(absolutePath(rtn)).to!string());
         
         if (rtn !is null)
         {
@@ -218,7 +218,7 @@ void CopyFiles(scope string[] files)   // MAKE SURE THIS IS SAFE
             {
                 () @trusted
                 {
-                    foreach (string file ; dirEntries!false(source, SpanMode.breadth))
+                    foreach (string file ; dirEntries(source, SpanMode.breadth))
                     {
                         scope string root = asRelativePath(absolutePath(file), base).to!string();
 
