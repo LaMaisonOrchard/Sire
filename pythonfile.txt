@@ -1,0 +1,31 @@
+
+
+SHELL = <python>;
+
+SRC = 'source/*.d' ;
+OBJ = $(SRC) : */*.d : ${0}/${1}.o ;
+
+PRE : QUIET :
+{
+print("Start")
+}
+
+TARGET
+{
+import sys
+import subprocess
+print( "$(OBJ)", )
+subprocess.run( ["ls" ,"$(SRC)" ]);
+
+sys.exit(0)
+}
+
+POST : QUIET :
+{
+print("Stop")
+}
+
+FAIL : QUIET :
+{
+print("FAIL")
+}

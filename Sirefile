@@ -8,25 +8,35 @@
 DUB = dub build;
 
 PY = <python> ;
-CFLAGS = "-I=Inc" ;
+CFLAGS = "-IInc" "-I/D/Inc" "-DDEBUG=1" "-DSTATE" "-DBAD=" ;
 
-GIT [ Test ../Sire "git@github.com:LaMaisonOrchard/Sire.git" main ] fred harry;
-GIT [ Repo ../Sire "git@github.com:LaMaisonOrchard/Sire.git" main ];
-INCLUDES [ *.h ${CFLAGS} ];
-INCLUDES [ *.cpp ${CFLAGS} ];
+INCLUDES [ *.h $(CFLAGS) ];
+INCLUDES [ *.cpp $(CFLAGS) ];
 
 SRC = 'source/*.d';
-ID  = ${PLATFORM}_${OS};
+ID  = $(PLATFORM)_$(OS);
+FRED = $(SRC);
 
-TARGET : output/${ID}/sire${EXE} fred.cpp;
+TARGET : ../Sire output/$(ID)/sire$(EXE) fred.cpp;
 
-*/${ID}/sire${EXE} : ${SRC}
+../Sire : CREATE :
+{
+    "$(GIT)" clone -b main --single-branch --recurse-submodules "git@github.com:LaMaisonOrchard/Sire.git" $(TARGET)
+}
+
+../Sire : TOUCH :
+{
+    cd $(TARGET)
+    "$(GIT)" pull origin
+}
+
+*/$(ID)/sire$(EXE) : $(SRC)
 {
     echo Build : ${TARGET}
-    mkdir ${0}/${ID}
-    ${DC} -of=${TARGET} ${DEPS}
+    mkdir $(0)/$(ID)
+    ${DC} -of=$(TARGET) $(DEPS)
 
-    cp ${0} ${0}2
+    cp $(0) $(0)2
 
     cd ..
     echo $(PWD)
@@ -36,6 +46,10 @@ PRE : QUIET :
 {
     echo "hello world"
     echo $(PWD)
+    echo "$(ID)
+    echo output/$(ID)/sire$(EXE) fred.cpp
+    echo $(FRED)
+    
 }
 
 POST : QUIET :

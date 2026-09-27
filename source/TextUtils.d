@@ -143,33 +143,7 @@ string[] SplitLine(string cmd)
 
     while (idx < cmd.length)
     {
-        if (inString && (cmd[idx] == '\\'))
-        {
-            idx += 1;
-            if (idx < cmd.length)
-            {
-                switch (cmd[idx])
-                {
-                case 'n':
-                    built.put('\n');
-                    break;
-                        
-                case 'r':
-                    built.put('\r');
-                    break;
-                        
-                case 't':
-                    built.put('\t');
-                    break;
-                        
-                default:
-                    built.put(cmd[idx]);
-                    break;
-                }
-                idx += 1;
-            }
-        }
-        else if (cmd[idx] == '\"')
+        if (cmd[idx] == '\"')
         {
             // Toggle the string state
             if (inString)

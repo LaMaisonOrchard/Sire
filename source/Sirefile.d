@@ -20,6 +20,7 @@ import EnvVar;
 import Path;
 import TextUtils;
 import shell;
+import genDependents;
 
 enum Flags : int
 {
@@ -98,6 +99,11 @@ class Sirefile
             return resolved[target];
         }
         
+        if (this.quiet == OutputLevel.VERBOSE)
+        {
+            writeln("target ==> ", target);
+        }
+        
         SysTime accessTime;
         SysTime targetTime;
         if (exists(target))
@@ -116,6 +122,10 @@ class Sirefile
                     if (!rule.isTouch())
                     {
                         // Can't update this target
+                        if (this.quiet == OutputLevel.VERBOSE)
+                        {
+                            writeln(target, " Can't use Rule ", rule.token().posn.toString(), " ", rule.token().text, " not touch rule");
+                        }
                         continue;
                     }
                 }
@@ -124,6 +134,10 @@ class Sirefile
                     if (!rule.isCreate())
                     {
                         // Can't create this target
+                        if (this.quiet == OutputLevel.VERBOSE)
+                        {
+                            writeln(target, " Can't use Rule ", rule.token().posn.toString(), " ", rule.token().text, " not create rule");
+                        }
                         continue;
                     }
                 }
@@ -143,12 +157,16 @@ class Sirefile
                     if (rule.isRequDeps())
                     {
                         // Can't use this rule
+                        if (this.quiet == OutputLevel.VERBOSE)
+                        {
+                            writeln(target, " Can't use Rule ", rule.token().posn.toString(), " ", rule.token().text, " requires dependents");
+                        }
                         continue;
                     }
                     else
                     {
                         // Oldest time
-                        newestDep = SysTime(0);
+                        newestDep = SysTime();
                     }
                 }
                 else
@@ -183,6 +201,10 @@ class Sirefile
                 {
                     if (rule.isBuildable)
                     {
+                        if (this.quiet == OutputLevel.VERBOSE)
+                        {
+                            writeln("build ==> ", target);
+                        }
                         if (rule.Execute(env))
                         {
                             if (exists(target))
@@ -318,13 +340,7 @@ class Sirefile
 
             override string[] Dependents(Enviro env)
             {
-                string[] deps;
-                string file = env.Get("TARGET")[0];
-
-                //@@ TODO Find include dependents
-                writeln("@@ TODO INCLUDE ", file, " :: ", args);
-
-                return deps ~ super.Dependents(env);
+                return genIncludes(env.Get("TARGET")[0], args) ~ super.Dependents(env);
             }
 
             override bool Execute(Enviro env)
@@ -335,92 +351,6 @@ class Sirefile
             private
             {
                 string[] args;
-            }
-        }
-        
-        class GitBuildRule : Rule
-        {
-            this(Posn posn, string[] args, Token[] deps)
-            {
-                super(posn, args[0], Flags.CREATE, deps, "git");
-                this.target_dir = args[1];
-                this.repo       = args[2];
-                this.branch     = args[3];
-            }
-
-            override bool Execute(Enviro env)
-            {
-                bool rtn;
-                
-                if (exists(this.target_dir ~ "/.git"))
-                {
-                    // Nothing to do. It exists
-                    writeln("Present : ", this.repo);
-                    rtn = true;
-                }
-                else
-                {
-                    writeln("Clone : ", this.repo);
-                    string[] cmd = [Path.FindExe(env.Get("PATH"), "git"), "clone", "-b", this.branch, "--single-branch", "--recurse-submodules", this.repo, this.target_dir];
-                    rtn = shell.Execute(cmd);
-                }
-                
-                return rtn;
-            }
-
-            private
-            {
-                string target_dir;
-                string repo;
-                string branch;
-            }
-        }
-        
-        class GitUpdateRule : Rule
-        {
-            this(Posn posn, string[] args, Token[] deps)
-            {
-                super(posn, args[0]~"-update", Flags.CREATE | Flags.TOUCH, deps, "git");
-                this.target_dir = args[1];
-                this.repo       = args[2];
-                this.branch     = args[3];
-            }
-
-            override bool Execute(Enviro env)
-            {
-                bool rtn;
-                
-                if (exists(this.target_dir ~ "/.git"))
-                {
-                    writeln("Update : ", this.repo);
-                    string[] here = env.Get("PWD");
-                    try
-                    {
-                        env.Set("PWD", [this.target_dir]);
-                        string[] cmd = [Path.FindExe(env.Get("PATH"), "git"), "pull", "origin"];
-                        rtn = shell.Execute(cmd);
-                    }
-                    catch (Exception ex)
-                    {
-                    }
-                    env.Set("PWD", here);
-                }
-                else
-                {
-                    // Clone it
-                    writeln("Clone : ", this.repo);
-                    string[] cmd = [Path.FindExe(env.Get("PATH"), "git"), "clone", "-b", this.branch, "--single-branch", "--recurse-submodules", this.repo, this.target_dir];
-                    rtn = shell.Execute(cmd);
-                }
-                
-                return rtn;
-            }
-
-            private
-            {
-                string target_dir;
-                string repo;
-                string branch;
             }
         }
         
@@ -455,6 +385,8 @@ class Sirefile
             this.env.Set("FORTRAN", [FindExe("gfortran", "ifort")]); // Fortran compiler
             this.env.Set("GO", [FindExe("gccgo", "go")]); // Go compiler
             this.env.Set("MOD2", [FindExe("gm2")]); // Modula-2 compiler
+            
+            this.env.Set("GIT", [FindExe("git")]); // git version control
 
             switch (this.quiet)
             {
@@ -846,19 +778,6 @@ class Sirefile
 
             switch (var.text)
             {
-                case "GIT":
-                    if (list.length != 4)
-                    {
-                        Error(var, "Incorrent arguments to GIT");
-                    }
-                    else
-                    {
-                        // Build rules
-                        this.rules ~= new GitBuildRule(posn, list, deps);
-                        this.rules ~= new GitUpdateRule(posn, list, deps);
-                    }
-                    break;
-
                 case "INCLUDES":
                     if (list.length < 1)
                     {
@@ -1118,8 +1037,8 @@ private
 				(ch == '*') || 
 				
 				(ch == '$') ||  // Variable expansion
-				(ch == '{') ||
-				(ch == '}')
+				(ch == '(') ||
+				(ch == ')')
 			    );
 		}
 		

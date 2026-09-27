@@ -150,67 +150,6 @@ class Enviro
     }
 }
 
-
-const(char)[] expandScript(string text, string[] param)
-{
-	static auto buffer = appender!(char[]);
-	static auto word = appender!(char[]);
-	buffer.clear();
-	
-	bool first = true;
-	for (int i = 0 ; (i < text.length); i += 1)
-	{
-		if (isWhite(text[i]))
-		{
-			buffer.put(text[i]);
-		}
-		else if (text[i] == '\"')
-		{
-			// quoted name
-			word.clear();
-			//word.add(text[i]);
-			for (; (i < text.length); i += 1)
-			{
-				if (text[i] == '\"')
-				{
-					//word.add(text[i]);
-					//buffer ~= PackageList(ExpandVar(word.data().idup, param));
-				}
-				else if ((text[i] == '\r') || (text[i] == '\n'))
-				{
-					//word.add('\"');
-					//buffer ~= PackageList(ExpandVar(word.data().idup, param));
-				}
-				else
-				{
-					//word.add(text[i]);
-				}
-			}
-		}
-		else
-		{
-			// name
-			word.clear();
-			//word.add(text[i]);
-			for (; (i < text.length); i += 1)
-			{
-				if (isWhite(text[i]))
-				{
-					//buffer ~= PackageList(ExpandVar(word.data().idup, param));
-					//buffer.add(text[i]);
-				}
-				else
-				{
-					//word.add(text[i]);
-				}
-			}
-		}
-	}
-		
-	return buffer.data();
-}
-
-
 string[] ExpandVar(const(char)[] txt, Enviro env)
 {
     string[] rtn;
@@ -219,7 +158,7 @@ string[] ExpandVar(const(char)[] txt, Enviro env)
     {
         for (int i = 0; (i < txt.length-2); i += 1)
         {
-            if (txt[i..i+2] == "${")
+            if (txt[i..i+2] == "$(")
             {
                 const(char)[] pre = txt[0..i];
                 int j = ScanToMatchingBrace(txt[i+2..$]);
@@ -283,11 +222,11 @@ private
         int i = 0;
         for (; (i < txt.length) && (count > 0); i += 1)
         {
-            if (txt[i] == '{')
+            if (txt[i] == '(')
             {
                 count += 1;
             }
-            if (txt[i] == '}')
+            if (txt[i] == ')')
             {
                 count -= 1;
             }

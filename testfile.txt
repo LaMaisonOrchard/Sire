@@ -14,10 +14,10 @@ PY = <python> ;
 PRE
 {
 echo run
-echo ${file1}
-echo ${file2}
-echo ${file3}
-echo ${file4}
-echo ${PY}
-echo ${SIRE}
+echo $(file1)
+echo $(file2)
+echo $(file3)
+echo $(file4)
+echo $(PY)
+echo $(SIRE)
 }

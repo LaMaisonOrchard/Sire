@@ -310,7 +310,7 @@ private
             if (idx+4 < line.length)
             {
                 if ((line[idx+0] == '$') &&
-                    (line[idx+1] == '('))
+                    (line[idx+1] == '{'))
                 {
                     // Insert the bit before the variable
                     expanded.put(line[start .. idx]);
@@ -318,7 +318,7 @@ private
                     start = idx;
                 }
                 
-                while ((idx < line.length) && (line[idx] != ')'))
+                while ((idx < line.length) && (line[idx] != '}'))
                 {
                     idx += 1;
                 }

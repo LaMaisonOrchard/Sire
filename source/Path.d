@@ -116,6 +116,7 @@ string FindExe(string[] path, string name)
 
 string[] FindFiles(string match)
 {
+writeln("-==> ", match);
     if ((match.length >= 5) && (match[0..5] == "run:"))
     {
         // Check the dependentcies
