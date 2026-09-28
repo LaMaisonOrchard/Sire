@@ -17,7 +17,7 @@ SRC = 'source/*.d';
 ID  = $(PLATFORM)_$(OS);
 FRED = $(SRC);
 
-TARGET : ../Sire output/$(ID)/sire$(EXE) fred.cpp;
+TARGET : ../Sire sire-test$(EXE) output/$(ID)/sire$(EXE) fred.cpp;
 
 ../Sire : CREATE :
 {
@@ -28,6 +28,13 @@ TARGET : ../Sire output/$(ID)/sire$(EXE) fred.cpp;
 {
     cd $(TARGET)
     "$(GIT)" pull origin
+}
+
+sire-test$(EXE) : $(SRC)
+{
+    echo Build : ${TARGET}
+    ${DC} -unittest -of=$(TARGET) $(DEPS)
+    ./$(TARGET)
 }
 
 */$(ID)/sire$(EXE) : $(SRC)

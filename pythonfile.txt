@@ -3,7 +3,7 @@
 SHELL = <python>;
 
 SRC = 'source/*.d' ;
-OBJ = $(SRC) : */*.d : ${0}/${1}.o ;
+OBJ = $(SRC) : */*.d : $(0)/$(1).o ;
 
 PRE : QUIET :
 {

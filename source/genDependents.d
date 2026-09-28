@@ -52,7 +52,7 @@ private
                     }
                     else
                     {
-                        includePath ~= chainPath(path, incPath).to!string();;
+                        includePath ~= chainPath(path, incPath).to!string();
                     }
                 }
                 

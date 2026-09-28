@@ -47,7 +47,7 @@ string[] RunLine(string[] cmd)
     }
     else
     {
-        throw new ShellException(cmd[0] ~ " Does not exist");
+        throw new ShellException("["~cmd[0] ~ "] Does not exist");
     }
 }
 
@@ -65,7 +65,7 @@ bool Execute(string[] cmd)
     }
     else
     {
-        throw new ShellException(cmd[0] ~ " Does not exist");
+        throw new ShellException("["~cmd[0] ~ "] Does not exist");
     }
 }
 

@@ -101,7 +101,7 @@ class Sirefile
         
         if (this.quiet == OutputLevel.VERBOSE)
         {
-            writeln("target ==> ", target);
+            writeln("Check ", target);
         }
         
         SysTime accessTime;
@@ -117,6 +117,11 @@ class Sirefile
             auto match = rule.Match(target);
             if (match.matched)
             {
+                if (this.quiet == OutputLevel.VERBOSE)
+                {
+                    writeln(target, " ==> ", rule.token().posn.toString(), " ", rule.token().text);
+                }
+                
                 if (exists(target))
                 {
                     if (!rule.isTouch())
@@ -190,15 +195,15 @@ class Sirefile
                 {
                     continue;
                 }
-
-                if (this.quiet == OutputLevel.VERBOSE)
-                {
-                    writeln(target, " ==> ", rule.token().posn.toString(), " ", rule.token().text);
-                }
                 
                 //writeln(target, " :: ", newestDep, " :: ", targetTime, " :: ", rule.isForce);
                 if ((newestDep > targetTime) || rule.isForce)
                 {
+                    if (this.quiet == OutputLevel.VERBOSE)
+                    {
+                        writeln("Update : ", target);
+                    }
+                
                     if (rule.isBuildable)
                     {
                         if (this.quiet == OutputLevel.VERBOSE)
@@ -226,12 +231,18 @@ class Sirefile
                         targetTime = newestDep;
                     }
                 }
-                break;
+                
+                resolved[target] = targetTime;
+                return targetTime;
             }
         }
         
+        if (this.quiet == OutputLevel.VERBOSE)
+        {
+            writeln("      No matching rule");
+        }
+        
         resolved[target] = targetTime;
-
         return targetTime;
     }
 
