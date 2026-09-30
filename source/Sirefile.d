@@ -28,7 +28,8 @@ enum Flags : int
     TOUCH    = 2,
     FORCE    = 4,
     QUIET    = 8,
-    REQUIRED = 16
+    REQUIRED = 16,
+    CONTINUE = 32
 };
 
 enum OutputLevel : int
@@ -210,18 +211,7 @@ class Sirefile
                         {
                             writeln("build ==> ", target);
                         }
-                        if (rule.Execute(env))
-                        {
-                            if (exists(target))
-                            {
-                                getTimes(target, accessTime, targetTime);
-                            }
-                            else
-                            {
-                                targetTime = newestDep;
-                            }
-                        }
-                        else
+                        if (!rule.Execute(env))
                         {
                             Error(rule.token(), "Build failed!");
                         }
@@ -230,6 +220,20 @@ class Sirefile
                     {
                         targetTime = newestDep;
                     }
+                }
+                
+                if (exists(target))
+                {
+                    getTimes(target, accessTime, targetTime);
+                }
+                else
+                {
+                    targetTime = newestDep;
+                }
+                
+                if (rule.isContinue())
+                {
+                    continue;
                 }
                 
                 resolved[target] = targetTime;
@@ -329,6 +333,7 @@ class Sirefile
             bool isTouch()  {return ((this.flags & Flags.TOUCH)  != 0);}
             bool isQuiet()  {return ((this.flags & Flags.QUIET)  != 0);}
             bool isRequDeps()  {return ((this.flags & Flags.REQUIRED)  != 0);}
+            bool isContinue()  {return ((this.flags & Flags.CONTINUE)  != 0);}
             bool isBuildable() {return (this.build !is null) &&(this.build.length != 0);}
 
             private
@@ -560,7 +565,8 @@ class Sirefile
                     (token.type == Type.TOUCH) ||
                     (token.type == Type.FORCE) ||
                     (token.type == Type.QUIET) ||
-                    (token.type == Type.REQU))
+                    (token.type == Type.REQU) ||
+                    (token.type == Type.CONT))
                 {
                     do
                     {
@@ -571,6 +577,7 @@ class Sirefile
                             case Type.FORCE:  flags |= Flags.FORCE; break;
                             case Type.QUIET:  flags |= Flags.QUIET; break;
                             case Type.REQU:   flags |= Flags.REQUIRED; break;
+                            case Type.CONT:   flags |= Flags.CONTINUE; break;
                             default: assert(false);
                         }
                         
@@ -872,7 +879,8 @@ private
 		CREATE,
         FORCE,
 		QUIET,
-		REQU,   // Requires dependents
+		REQU,  
+		CONT,   // Requires dependents
 		INCLUDE,
 		NAME,
 		TEXT,   // General text
@@ -1445,6 +1453,7 @@ private
 				case "FORCE"     : token.type = Type.FORCE;   break;
 				case "QUIET"     : token.type = Type.QUIET;   break;
 				case "REQU_DEPS" : token.type = Type.REQU;    break;
+				case "CONTINUE"  : token.type = Type.CONT;    break;
 				case "INCLUDE"   : token.type = Type.INCLUDE; break;
 				default: token.type = Type.NAME; break;
 			}

@@ -33,7 +33,7 @@ bool hasPath(string text)
 {
     foreach (c ; text)
     {
-        if ((text[0] == '\\') || (text[0] == '/'))
+        if ((c == '\\') || (c == '/'))
         {
             return true;
         }
@@ -351,4 +351,19 @@ private
 
         return rtn;
     }
+}
+
+unittest
+{
+    assert(hasPath("/"));
+    assert(hasPath("./fred.c"));
+    assert(hasPath("harry/fred/lois.c"));
+    assert(hasPath("\\"));
+    assert(hasPath(".\\fred.c"));
+    assert(hasPath("harry\\fred\\lois.c"));
+    assert(hasPath("harry/fred\\lois.c"));
+    
+    assert(!hasPath(""));
+    assert(!hasPath(".c"));
+    assert(!hasPath("fred.c"));
 }
