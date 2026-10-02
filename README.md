@@ -5,7 +5,7 @@ A simple dependency rule based build utility written in D. The Untility is aimed
 
 The general rule structure is:
 
-{<targets>} ':' {<flags>} ':' {<dependents>} '{' <script> '}'
+{\<targets\>} ':' {\<flags\>} ':' {\<dependents\>} '{' \<script\> '}'
 
 i.e.
 ```
@@ -17,7 +17,7 @@ i.e.
 
 The flags are optional:
 
-{<targets>} ':' {<dependents>} '{' <script> '}'
+{\<targets\>} ':' {\<dependents\>} '{' \<script\> '}'
 
 i.e.
 ```
@@ -42,7 +42,7 @@ test
 
 The scripts are optional:
 
-{<targets>} ':' {<flags>} ':' {<dependents>} ';'
+{\<targets\>} ':' {\<flags\>} ':' {\<dependents\>} ';'
 
 i.e.
 ```
@@ -182,3 +182,9 @@ TARGET
     $(ARG$(NUM))  ==> Harry Fred
 }
 ```
+### Variable Indexing
+
+### Special Rule Variables
+
+The variable TARTGET is set to the current target for the rule and the variable DEPS is set to the dependent for the rule. Any piece of text
+matched tp a '*' in the rule target becomes a numbered variable.
