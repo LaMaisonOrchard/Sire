@@ -30,7 +30,7 @@ i.e.
 
 The dependents are also optional are optional:
 
-{<targets>} '{' <script> '}'
+{\<targets\>} '{' <script> '}'
 
 i.e.
 ```
@@ -51,7 +51,7 @@ i.e.
 
 The most minimal rule:
 
-{<targets>} ':' ';'
+{\<targets\>} ':' ';'
 
 i.e.
 ```
