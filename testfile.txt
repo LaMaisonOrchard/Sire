@@ -10,6 +10,7 @@ file2 = <D:\Projects\Sire\sire>;
 file3 = <./sire>;
 file4 = <sire>;
 PY = <python> ;
+FRED = A B C D;
 
 PRE
 {
@@ -20,4 +21,7 @@ echo $(file3)
 echo $(file4)
 echo $(PY)
 echo $(SIRE)
+echo $(FRED:1) 1 to the end
+echo $(FRED:1:3) 1 to 3 exclusive
+echo $(FRED:1:2)  Just element 1
 }

@@ -586,7 +586,9 @@ class Sirefile
                     while ((token.type == Type.CREATE)||
                            (token.type == Type.TOUCH) ||
                            (token.type == Type.FORCE) ||
-                           (token.type == Type.QUIET));
+                           (token.type == Type.QUIET) ||
+                           (token.type == Type.REQU) ||
+                           (token.type == Type.CONT));
 
                     if (token.type != Type.COLON)
                     {
@@ -610,9 +612,9 @@ class Sirefile
                     // Create an empty block
                     token.type = Type.BLOCK;
                     token.text = "";
+                    AddRule(targets, flags, deps, token);
                 }
-
-                if (token.type == Type.BLOCK)
+                else if (token.type == Type.BLOCK)
                 {
                     AddRule(targets, flags, deps, token);
                 }

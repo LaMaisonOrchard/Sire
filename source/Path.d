@@ -92,7 +92,12 @@ string FindExe(string[] path, string name)
     // Explicit path
     if (hasPath(name))
     {
-        return exeName(name);
+        string localName = exeName(asAbsolutePath(name).to!string());
+        
+        if (localName !is null)
+        {
+            return localName;
+        }
     }
     
     version(Windows)

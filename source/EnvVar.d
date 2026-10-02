@@ -152,6 +152,11 @@ class Enviro
 
 string[] ExpandVar(const(char)[] txt, Enviro env)
 {
+    return ExpandVar(txt, env, 0, 0);
+}
+
+string[] ExpandVar(const(char)[] txt, Enviro env, ulong from, ulong to)
+{
     string[] rtn;
 
     if (txt.length > 2)
@@ -175,8 +180,20 @@ string[] ExpandVar(const(char)[] txt, Enviro env)
                         }
                     }
                 }
+                
+                if (to <= from)
+                {
+                    to = rtn.length;
+                }
 
-                return rtn;
+                if (from >= rtn.length)
+                {
+                    return [];
+                }
+                else
+                {
+                    return rtn[from .. to];
+                }
             }
         }
     }
@@ -295,7 +312,7 @@ private
                     else
                     {
                         end += 1;
-                        if (name[end] == '-')
+                        if ( (end < name.length) && (name[end] == '-'))
                         {
                             negative = true;
                             end += 1;
@@ -307,7 +324,7 @@ private
                             end += 1;
                         }
                         
-                        if (end < name.length)
+                        if ((start >= name.length ) || (end < name.length))
                         {
                             throw new EnviroException("Bad index");
                         }
