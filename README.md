@@ -55,7 +55,7 @@ i.e.
 ```
 
 
-The dependents are also optional are optional:
+The dependents are also optional:
 
 {\<targets\>} '{' <script> '}'
 
@@ -164,23 +164,23 @@ or more strings.
 
 ### Quotes
 
-The values in a variable can be quotes and the quotes string wil be a single entry in the list
+The values in a variable can be quoted and the quoted string will be a single entry in the list
 
 ```
 FRED = "the main.c" ;
 ```
 ### Transforms
 
-The list entries can be transformes using matching
+The list entries can be transformed using matching
 
 ```
 FRED = 'Src/*.c' : Src/*.c : Obj/$(0).o ;
 ```
-This creates a list of objects one for each source file. Each element matched with an '*' becomes a number environment variable expanded as '$(n)'.
+This creates a list of objects one for each source file. Each element matched with an '*' becomes a numbered environment variable expanded as '$(n)'.
 
 ## Scripts
 
-The rule scripts are run using a scripting language define by the variable SHELL. By default SHELL is set to 'sire' which means sire's built in scripting languag.
+The rule scripts are run using a scripting language defined by the variable SHELL. By default SHELL is set to 'sire' which means sire's built in scripting language is used.
 This is a very simple scripting language to do basic operations. You can use alternative scripting languages by setting the SHELL vaiable.
 
 ```
@@ -191,8 +191,8 @@ In this case the rule scripts will be run in the python interpreter.
 
 ### Variable Expansion
 
-Variables withe the notation '$(<name>)' will be expanded in the script before the script is run. If the value is a list it will be expaned as a space separated list.
-Any this placed directly around the variable will be placed around each expaned item so '"$(<name>)"' will expand to a space separated list of quoted items. The name of the 
+Variables referenced with the notation ```$(<name>)``` will be expanded in the script before the script is run. If the value is a list it will be expaned as a space separated list.
+Any thing placed directly around the variable will be placed around each expanded item so '"$(<name>)"' will expand to a space separated list of quoted items. The name of the 
 variable can itself contain variables i.e. '$(HELLO$(WORLD))'.
 
 ```
@@ -223,13 +223,14 @@ echo $(FRED:1)    ==> B C D
 echo $(FRED:1:3)  ==> B C
 echo $(FRED:1:2)  ==> B
 echo $(FRED:0:-1) ==> A B C
+echo $(FRED:1:0)  ==> B C D  // '0' here is a special case indicating the end of the list
 }
 ```
 
 ### Special Rule Variables
 
-The variable TARTGET is set to the current target for the rule and the variable DEPS is set to the dependent for the rule. Any piece of text
-matched tp a '*' in the rule target becomes a numbered variable.
+The variable TARGET is set to the current target for the rule and the variable DEPS is set to the dependents for the rule. Any piece of text
+that matched to a '*' in the rule target become a numbered variable.
 
 ## Sire Script
 
