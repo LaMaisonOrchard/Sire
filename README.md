@@ -184,6 +184,21 @@ TARGET
 ```
 ### Variable Indexing
 
+A variables list can be indexed and spliced.
+
+```
+FRED = A B C D;
+
+
+PRE
+{
+echo $(FRED:1)    ==> B C D
+echo $(FRED:1:3)  ==> B C
+echo $(FRED:1:2)  ==> B
+echo $(FRED:0:-1) ==> A B C
+}
+```
+
 ### Special Rule Variables
 
 The variable TARTGET is set to the current target for the rule and the variable DEPS is set to the dependent for the rule. Any piece of text

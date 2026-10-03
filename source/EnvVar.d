@@ -351,8 +351,12 @@ private
         {
             if (end > 0)
             {
-                if ((start < end) &&
-                    (end <= list.length))
+                if (end > list.length)
+                {
+                    end = cast(int)(list.length);
+                }
+                
+                if (start < end)
                 {
                     rtn ~= list[start .. end];
                 }
@@ -376,4 +380,23 @@ private
 
         return rtn;
     }
+}
+
+unittest
+{
+    Enviro env = new Enviro();
+    env.Set("FRED", ["A", "B", "C", "D"]);
+    
+    assert(env.Get("FRED") == ["A", "B", "C", "D"]);
+    assert(env.Get("FRED:2") == ["C", "D"]);
+    assert(env.Get("FRED:4") == []);
+    assert(env.Get("FRED:-1") == []);
+    
+    assert(env.Get("FRED:1:2") == ["B"]);
+    assert(env.Get("FRED:1:3") == ["B", "C"]);
+    assert(env.Get("FRED:1:8") == ["B", "C", "D"]);
+    assert(env.Get("FRED:1:-1") == ["B", "C"]);
+    assert(env.Get("FRED:1:-3") == []);
+    assert(env.Get("FRED:1:0") == ["B", "C", "D"]);
+    assert(env.Get("FRED:2:1") == []);
 }
