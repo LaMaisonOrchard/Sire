@@ -343,9 +343,9 @@ private
     {
         string[] rtn;
         
-        if (list is null)
+        if ((list is null) || (list.length == 0))
         {
-            rtn ~= "";
+            // Drop through
         }
         else
         {
@@ -398,5 +398,24 @@ unittest
     assert(env.Get("FRED:1:-1") == ["B", "C"]);
     assert(env.Get("FRED:1:-3") == []);
     assert(env.Get("FRED:1:0") == ["B", "C", "D"]);
+    assert(env.Get("FRED:2:1") == []);
+}
+
+unittest
+{
+    Enviro env = new Enviro();
+    env.Set("FRED", []);
+    
+    assert(env.Get("FRED") == []);
+    assert(env.Get("FRED:2") == []);
+    assert(env.Get("FRED:4") == []);
+    assert(env.Get("FRED:-1") == []);
+    
+    assert(env.Get("FRED:1:2") == []);
+    assert(env.Get("FRED:1:3") == []);
+    assert(env.Get("FRED:1:8") == []);
+    assert(env.Get("FRED:1:-1") == []);
+    assert(env.Get("FRED:1:-3") == []);
+    assert(env.Get("FRED:1:0") == []);
     assert(env.Get("FRED:2:1") == []);
 }

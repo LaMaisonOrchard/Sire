@@ -201,7 +201,7 @@ void CopyFiles(scope string[] files)   // MAKE SURE THIS IS SAFE
     if ((sources.length == 1) &&
         exists(sources[0]) &&
         !isDir(sources[0]) &&
-        (!exists(dest) || !isDir(dest)))
+        !isDir(dest))
     {
         // file to file copy
         copy(sources[0], dest);

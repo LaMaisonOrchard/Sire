@@ -3,6 +3,31 @@ A simple dependency rule based build utility written in D. The Untility is aimed
 
 ## Command Line
 
+```sire --help``` Get the help instructions
+
+```sire --version``` Get the sire version
+
+```sire``` Run sire using the default script and building the target "TARGET"
+
+```sire {<targets>}``` Run sire using the default script and building the given targets
+
+```sire --in <script file>  {<targets>}``` Build the given targets using the given script file
+
+```sire -C <directory> --in <script file>  {<targets>}``` Build the given targets in the given directory using the given script file
+
+There are optional switch ```--verbose```, ```--normal``` and ```--quiet``` that control the level of output.
+
+The default script files are in order:
+
+```
+Sirefile
+sirefile
+Jakefile
+jakefile
+Sirefile.txt
+sirefile.txt
+```
+
 ## Rules
 
 The general rule structure is:
@@ -208,7 +233,34 @@ matched tp a '*' in the rule target becomes a numbered variable.
 
 ## Sire Script
 
-Sire's build is script langague is a a basic script to support simple operations.
+Sire's build in script langague is a basic script to support simple operations.
+
+Each line is read as a program and a list of parameters to run. There are some simple built in commands
+
+### echo
+
+The 'echo' command prints out a space separated list of arguments
+
+### mkdir
+
+Make one or more directories (recursivly).
+
+### cd
+
+Change the current directory. The current working directory is displayed.
+
+### cp/copy
+
+Copy files and dirctories (recursively).
+
+```
+cp <file> <file>
+cp {<file|directory>} <directory>
+```
+
+### pop
+
+Go back to the previous director (see cp)
 
 ## Examples
 
@@ -258,7 +310,7 @@ TARGET
 import sys
 import subprocess
 print( "$(OBJ)", )
-subprocess.run( ["$(DC)", "-of=$(TARGET)" ,"$(SRC)" ]);
+subprocess.run( [ "$(DC)", "-of=$(TARGET)" ,"$(SRC)" ]);
 
 sys.exit(0)
 }
