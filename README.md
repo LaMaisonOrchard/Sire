@@ -1,7 +1,9 @@
 # Sire
 A simple dependency rule based build utility written in D. The Untility is aimed and platform independence.
 
-##Rules
+## Command Line
+
+## Rules
 
 The general rule structure is:
 
@@ -203,3 +205,71 @@ echo $(FRED:0:-1) ==> A B C
 
 The variable TARTGET is set to the current target for the rule and the variable DEPS is set to the dependent for the rule. Any piece of text
 matched tp a '*' in the rule target becomes a numbered variable.
+
+## Sire Script
+
+Sire's build is script langague is a a basic script to support simple operations.
+
+## Examples
+
+### sire
+
+```
+SRC = 'source/*.d' ;
+OBJ = $(SRC) : */*.d : $(0)/$(1).o ;
+
+PRE : QUIET :
+{
+echo "Start"
+}
+
+TARGET
+{
+echo "$(OBJ)"
+$(DC) -of=$(TARGET) $(SRC)
+}
+
+POST : QUIET :
+{
+echo "Stop"
+}
+
+FAIL : QUIET :
+{
+echo "FAIL"
+}
+```
+
+### Python
+
+```
+SHELL = <python>;
+
+SRC = 'source/*.d' ;
+OBJ = $(SRC) : */*.d : $(0)/$(1).o ;
+
+PRE : QUIET :
+{
+print("Start")
+}
+
+TARGET
+{
+import sys
+import subprocess
+print( "$(OBJ)", )
+subprocess.run( ["$(DC)", "-of=$(TARGET)" ,"$(SRC)" ]);
+
+sys.exit(0)
+}
+
+POST : QUIET :
+{
+print("Stop")
+}
+
+FAIL : QUIET :
+{
+print("FAIL")
+}
+```
