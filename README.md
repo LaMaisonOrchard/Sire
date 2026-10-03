@@ -15,7 +15,7 @@ A simple dependency rule based build utility written in D. The Untility is aimed
 
 ```sire -C <directory> --in <script file>  {<targets>}``` Build the given targets in the given directory using the given script file
 
-There are optional switch ```--verbose```, ```--normal``` and ```--quiet``` that control the level of output.
+There are optional switchs ```--verbose```, ```--normal``` and ```--quiet``` that control the level of output.
 
 The default script files are in order:
 
@@ -233,9 +233,9 @@ matched tp a '*' in the rule target becomes a numbered variable.
 
 ## Sire Script
 
-Sire's build in script langague is a basic script to support simple operations.
+Sire's built in script language is a basic scripting language to support simple operations.
 
-Each line is read as a program and a list of parameters to run. There are some simple built in commands
+Each line is read as a program and a list of parameters to run. The script supports some simple built in commands.
 
 ### echo
 
@@ -260,7 +260,7 @@ cp {<file|directory>} <directory>
 
 ### pop
 
-Go back to the previous director (see cp)
+Go back to the previous directory (see cp)
 
 ## Examples
 
@@ -323,5 +323,35 @@ print("Stop")
 FAIL : QUIET :
 {
 print("FAIL")
+}
+```
+
+### bash
+
+```
+SHELL = <bash>;
+
+SRC = 'source/*.d' ;
+OBJ = $(SRC) : */*.d : $(0)/$(1).o ;
+
+PRE : QUIET :
+{
+echo "Start"
+}
+
+TARGET
+{
+echo "$(OBJ)"
+$(DC) -of=$(TARGET) $(SRC)
+}
+
+POST : QUIET :
+{
+echo "Stop"
+}
+
+FAIL : QUIET :
+{
+echo "FAIL"
 }
 ```
