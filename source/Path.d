@@ -246,7 +246,7 @@ void CopyFiles(scope string[] files)   // MAKE SURE THIS IS SAFE
             }
             else
             {
-                copy(source, dest ~ "/" ~ source);
+                copy(source, dest ~ "/" ~ baseName(source));
             }
         }
     }
