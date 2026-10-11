@@ -80,6 +80,14 @@ class Sirefile
         this.quiet = quiet;
         Parse();
 	}
+    
+	private this()
+	{
+        DefaultEnv();
+        
+        this.input = new InputStack();
+        this.quiet = quiet;
+	}
 
     bool Pre()
     {
@@ -110,8 +118,9 @@ class Sirefile
         if (exists(target))
         {
             getTimes(target, accessTime, targetTime);
-            //writeln(target, " :: ", targetTime);
         }
+        
+        checked[target] = targetTime;
 
         foreach (rule ; this.rules)
         {
@@ -171,23 +180,33 @@ class Sirefile
                     }
                     else
                     {
-                        // Oldest time
-                        newestDep = SysTime();
+                        // Time now
+                        newestDep = Clock.currTime();
                     }
                 }
                 else
                 {
                     foreach (dep ; deps)
                     {
-                        SysTime depTime = Build(dep);
-                        if (depTime == SysTime())
+        
+                        if (dep in checked)
                         {
+                            Error(rule.token(), "Cyclic dependentcy! : ", target);
                             missingDeps = true;
                             break;
                         }
-                        if (depTime > newestDep)
+                        else
                         {
-                            newestDep = depTime;
+                            SysTime depTime = Build(dep);
+                            if (depTime == SysTime())
+                            {
+                                missingDeps = true;
+                                break;
+                            }
+                            if (depTime > newestDep)
+                            {
+                                newestDep = depTime;
+                            }
                         }
                     }
                 }
@@ -197,7 +216,6 @@ class Sirefile
                     continue;
                 }
                 
-                //writeln(target, " :: ", newestDep, " :: ", targetTime, " :: ", rule.isForce);
                 if ((newestDep > targetTime) || rule.isForce)
                 {
                     if (this.quiet == OutputLevel.VERBOSE)
@@ -236,6 +254,8 @@ class Sirefile
                     continue;
                 }
                 
+                
+                checked.remove(target);
                 resolved[target] = targetTime;
                 return targetTime;
             }
@@ -246,6 +266,7 @@ class Sirefile
             writeln("      No matching rule");
         }
         
+        checked.remove(target);
         resolved[target] = targetTime;
         return targetTime;
     }
@@ -856,6 +877,7 @@ class Sirefile
         Rule   failRule;
         
         SysTime[string] resolved;
+        SysTime[string] checked;
         
 		InputStack input;
 
@@ -1487,4 +1509,71 @@ private
 		string filename = "<UNKNOWN>";
 	};
 
+}
+
+private  //// unittest
+{
+unittest
+{
+    writeln("Test Sirefile 1");
+    try
+    {
+        auto sire = new Sirefile();
+        sire.AddRule(["myFile"], 0, [Token("myFile", Type.TEXT)], Token("", Type.TEXT)); // Recursive rule
+        sire.Build("myFile");
+        assert(0); // We should go out on the exception
+    }
+    catch (SireException ex)
+    {
+    }
+}
+
+unittest
+{
+    writeln("Test Sirefile 2");
+    try
+    {
+        auto sire = new Sirefile();
+        sire.AddRule(["myFile"], 0, [], Token("", Type.TEXT)); // No dependent rule
+        assert(sire.Build("myFile") != SysTime());
+    }
+    catch (SireException ex)
+    {
+        writeln(ex.message);
+        assert(0); // Unexpected exception
+    }
+}
+
+unittest
+{
+    writeln("Test Sirefile 3");
+    try
+    {
+        auto sire = new Sirefile();
+        sire.AddRule(["myFile"], 0, [Token("what", Type.TEXT)], Token("", Type.TEXT)); // Missing dependent rule
+        assert(sire.Build("myFile") == SysTime());
+    }
+    catch (SireException ex)
+    {
+        writeln(ex.message);
+        assert(0); // Unexpected exception
+    }
+}
+
+unittest
+{
+    writeln("Test Sirefile 4");
+    try
+    {
+        auto sire = new Sirefile();
+        sire.AddRule(["myFile"], 0, [Token("what", Type.TEXT)], Token("", Type.TEXT));
+        sire.AddRule(["w*"], 0, [], Token("", Type.TEXT)); // Match rule
+        assert(sire.Build("myFile") != SysTime());
+    }
+    catch (SireException ex)
+    {
+        writeln(ex.message);
+        assert(0); // Unexpected exception
+    }
+}
 }
