@@ -76,12 +76,6 @@ string[] SplitWildcards(string text)
         rtn ~= build;
     }
 
-    foreach(entry ; rtn)
-    {
-        write(entry, "::");
-    }
-    writeln();
-
     return rtn;
 }
 

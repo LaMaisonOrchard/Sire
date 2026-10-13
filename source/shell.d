@@ -141,11 +141,6 @@ bool Execute(string script, ref Enviro env, bool quiet)
         rtn = false;
     }
 
-    if (!rtn)
-    {
-        writeln("ERROR");
-    }
-
     return rtn;
 }
 

@@ -75,7 +75,7 @@ string exeName(string name)
         }
         else
         {
-            writeln("No such executable : ", name);
+            // No such executable - return null
         }
     }
     
@@ -205,14 +205,12 @@ void CopyFiles(scope string[] files)   // MAKE SURE THIS IS SAFE
     {
         // file to file copy
         copy(sources[0], dest);
-        //writeln("Copy ", sources[0], " ==> ", dest);
     }
     else
     {
         if (!exists(dest))
         {
             mkdirRecurse(dest);
-            //writeln("Mkdir ", dest);
         }
 
         foreach (source ; sources)
@@ -234,12 +232,10 @@ void CopyFiles(scope string[] files)   // MAKE SURE THIS IS SAFE
                         if (isDir(file))
                         {
                             mkdirRecurse(chainPath(dest, root).to!string());
-                            //writeln("Mkdir ", chainPath(dest, root));
                         }
                         else
                         {
                             copy(file, chainPath(dest, root));
-                            //writeln("Copy ", file, " ==> ", chainPath(dest, root));
                         }
                     }
                 }();

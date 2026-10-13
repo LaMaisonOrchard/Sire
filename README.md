@@ -15,6 +15,8 @@ A simple dependency rule based build utility written in D. The Untility is aimed
 
 ```sire -C <directory> --in <script file>  {<targets>}``` Build the given targets in the given directory using the given script file
 
+```sire --clean {<targets>}``` Remove any files/directories that can be regenerated
+
 There are optional switchs ```--verbose```, ```--normal``` and ```--quiet``` that control the level of output.
 
 The default script files are in order:

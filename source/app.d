@@ -56,12 +56,12 @@ int main(string[] args)
             case "--help":
                 writeln("--help");
                 writeln("--version");
-                writeln("[--in <sirefile>] [-C <path>] [--verbose | --normal | --quiet] {<targets>}");
+                writeln("[--in <sirefile>] [-C <path>] [--clean] [--verbose | --normal | --quiet] {<targets>}");
                 return 0;
                 
             case "-i":
             case "--version":
-                writeln("Sire 0.0.0");
+                writeln("Sire 0.1.0");
                 return 0;
                 
             case "--in":

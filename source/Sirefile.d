@@ -362,7 +362,7 @@ class Sirefile
                 { 
                     writeln("Remove : ", target);
                     getTimes(target, accessTime, targetTime);
-                    if (isDir())
+                    if (isDir(target))
                     {
                         rmdirRecurse(target);
                     }
