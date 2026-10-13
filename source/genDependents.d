@@ -51,7 +51,7 @@ public
 
 private
 {
-    string[] parseIncludes(string file, string[string] defines)
+    string[] parseIncludes(string file, string[string] defines) @trusted
     {
         string[] rtn;
         

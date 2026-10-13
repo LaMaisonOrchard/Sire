@@ -26,6 +26,7 @@ int main(string[] args)
 {
     string sirefile;
     string[] targets;
+    bool doClean = false;
 
     foreach (name ; scriptFiles)
     {
@@ -83,6 +84,10 @@ int main(string[] args)
                 quiet = OutputLevel.QUIET;
                 break;
                 
+            case "--clean":
+                doClean = true;
+                break;
+                
             case "-C":
                 i += 1;
                 if (i < args.length)
@@ -134,7 +139,7 @@ int main(string[] args)
     {
         foreach (target ; targets)
         {
-            time = config.Build(target);
+            time = (doClean)?(config.Clean(target)):(config.Build(target));
             if (time == SysTime())
             {
                 writeln("Failed to build [", target , "]");

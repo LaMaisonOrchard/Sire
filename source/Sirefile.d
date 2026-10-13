@@ -271,6 +271,128 @@ class Sirefile
         return targetTime;
     }
 
+
+    SysTime Clean(string target)
+    {
+        if (target in resolved)
+        {
+            return resolved[target];
+        }
+        
+        if (this.quiet == OutputLevel.VERBOSE)
+        {
+            writeln("Clean ", target);
+        }
+        
+        SysTime accessTime;
+        SysTime targetTime;
+        if (exists(target))
+        {
+            getTimes(target, accessTime, targetTime);
+        }
+        
+        checked[target] = targetTime;
+
+        foreach (rule ; this.rules)
+        {
+            auto match = rule.Match(target);
+            if (match.matched && rule.isCreate())
+            {
+                if (this.quiet == OutputLevel.VERBOSE)
+                {
+                    writeln(target, " ==> ", rule.token().posn.toString(), " ", rule.token().text);
+                }
+
+                auto deps = rule.Dependents(env);
+
+                // Check dependents
+                bool missingDeps = false;
+                SysTime newestDep;
+                
+                if (deps.length == 0)
+                {
+                    if (rule.isRequDeps())
+                    {
+                        // Can't use this rule
+                        if (this.quiet == OutputLevel.VERBOSE)
+                        {
+                            writeln(target, " Can't use Rule ", rule.token().posn.toString(), " ", rule.token().text, " requires dependents");
+                        }
+                        continue;
+                    }
+                    else
+                    {
+                        // Time now
+                        newestDep = Clock.currTime();
+                    }
+                }
+                else
+                {
+                    foreach (dep ; deps)
+                    {
+        
+                        if (dep in checked)
+                        {
+                            Error(rule.token(), "Cyclic dependentcy! : ", target);
+                            missingDeps = true;
+                            break;
+                        }
+                        else
+                        {
+                            SysTime depTime = Clean(dep);
+                            if (depTime == SysTime())
+                            {
+                                missingDeps = true;
+                                break;
+                            }
+                            if (depTime > newestDep)
+                            {
+                                newestDep = depTime;
+                            }
+                        }
+                    }
+                }
+
+                if (missingDeps)
+                {
+                    continue;
+                }
+                
+                if (exists(target))
+                { 
+                    writeln("Remove : ", target);
+                    getTimes(target, accessTime, targetTime);
+                    if (isDir())
+                    {
+                        rmdirRecurse(target);
+                    }
+                    else
+                    {
+                        remove(target);
+                    }
+                }
+                else
+                {
+                    targetTime = newestDep;
+                }
+                
+                if (rule.isContinue())
+                {
+                    continue;
+                }
+                
+                
+                checked.remove(target);
+                resolved[target] = targetTime;
+                return targetTime;
+            }
+        }
+        
+        checked.remove(target);
+        resolved[target] = targetTime;
+        return targetTime;
+    }
+
     bool Post()
     {
         bool rtn = true;
