@@ -101,7 +101,7 @@ class Sirefile
         return rtn;
     }
 
-    SysTime Build(string target)
+    SysTime Build(string target, bool force)
     {
         if (target in resolved)
         {
@@ -197,7 +197,7 @@ class Sirefile
                         }
                         else
                         {
-                            SysTime depTime = Build(dep);
+                            SysTime depTime = Build(dep, force);
                             if (depTime == SysTime())
                             {
                                 missingDeps = true;
@@ -216,7 +216,7 @@ class Sirefile
                     continue;
                 }
                 
-                if ((newestDep > targetTime) || rule.isForce)
+                if ((newestDep > targetTime) || force || rule.isForce)
                 {
                     if (this.quiet == OutputLevel.VERBOSE)
                     {
@@ -1642,7 +1642,7 @@ unittest
     {
         auto sire = new Sirefile();
         sire.AddRule(["myFile"], 0, [Token("myFile", Type.TEXT)], Token("", Type.TEXT)); // Recursive rule
-        sire.Build("myFile");
+        sire.Build("myFile", false);
         assert(0); // We should go out on the exception
     }
     catch (SireException ex)
@@ -1657,7 +1657,7 @@ unittest
     {
         auto sire = new Sirefile();
         sire.AddRule(["myFile"], 0, [], Token("", Type.TEXT)); // No dependent rule
-        assert(sire.Build("myFile") != SysTime());
+        assert(sire.Build("myFile", false) != SysTime());
     }
     catch (SireException ex)
     {
@@ -1673,7 +1673,7 @@ unittest
     {
         auto sire = new Sirefile();
         sire.AddRule(["myFile"], 0, [Token("what", Type.TEXT)], Token("", Type.TEXT)); // Missing dependent rule
-        assert(sire.Build("myFile") == SysTime());
+        assert(sire.Build("myFile", false) == SysTime());
     }
     catch (SireException ex)
     {
@@ -1690,7 +1690,7 @@ unittest
         auto sire = new Sirefile();
         sire.AddRule(["myFile"], 0, [Token("what", Type.TEXT)], Token("", Type.TEXT));
         sire.AddRule(["w*"], 0, [], Token("", Type.TEXT)); // Match rule
-        assert(sire.Build("myFile") != SysTime());
+        assert(sire.Build("myFile", false) != SysTime());
     }
     catch (SireException ex)
     {

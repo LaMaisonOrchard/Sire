@@ -30,7 +30,7 @@ TARGET : ../Sire sire-test$(EXE) output/$(ID)/sire$(EXE) fred.cpp;
     "$(GIT)" pull origin
 }
 
-sire-test$(EXE) : $(SRC)
+sire-test$(EXE) : FORCE : $(SRC)
 {
     echo Build : ${TARGET}
     ${DC} -unittest -of=$(TARGET) $(DEPS)

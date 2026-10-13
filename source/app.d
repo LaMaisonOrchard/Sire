@@ -27,6 +27,7 @@ int main(string[] args)
     string sirefile;
     string[] targets;
     bool doClean = false;
+    bool force = false;
 
     foreach (name ; scriptFiles)
     {
@@ -56,7 +57,7 @@ int main(string[] args)
             case "--help":
                 writeln("--help");
                 writeln("--version");
-                writeln("[--in <sirefile>] [-C <path>] [--clean] [--verbose | --normal | --quiet] {<targets>}");
+                writeln("[--in <sirefile>] [-C <path>] [--clean | --force] [--verbose | --normal | --quiet] {<targets>}");
                 return 0;
                 
             case "-i":
@@ -86,6 +87,12 @@ int main(string[] args)
                 
             case "--clean":
                 doClean = true;
+                force = false;
+                break;
+                
+            case "--force":
+                doClean = false;
+                force = true;
                 break;
                 
             case "-C":
@@ -139,7 +146,7 @@ int main(string[] args)
     {
         foreach (target ; targets)
         {
-            time = (doClean)?(config.Clean(target)):(config.Build(target));
+            time = (doClean)?(config.Clean(target)):(config.Build(target, force));
             if (time == SysTime())
             {
                 writeln("Failed to build [", target , "]");
