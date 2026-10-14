@@ -178,7 +178,7 @@ class Sirefile
                         }
                         continue;
                     }
-                    else
+                    else if (!exists(target))
                     {
                         // Time now
                         newestDep = Clock.currTime();
@@ -242,9 +242,16 @@ class Sirefile
                 
                 if (exists(target))
                 {
-                    getTimes(target, accessTime, targetTime);
+                    SysTime fileTime;
+                    getTimes(target, accessTime, fileTime);
+                    
+                    if (fileTime > targetTime)
+                    {
+                        targetTime = fileTime;
+                    }
                 }
-                else
+                
+                if (newestDep > targetTime)
                 {
                     targetTime = newestDep;
                 }
@@ -320,7 +327,7 @@ class Sirefile
                         }
                         continue;
                     }
-                    else
+                    else if (!exists(target))
                     {
                         // Time now
                         newestDep = Clock.currTime();
@@ -361,7 +368,14 @@ class Sirefile
                 if (exists(target))
                 { 
                     writeln("Remove : ", target);
-                    getTimes(target, accessTime, targetTime);
+                    SysTime fileTime;
+                    getTimes(target, accessTime, fileTime);
+                    
+                    if (fileTime > targetTime)
+                    {
+                        targetTime = fileTime;
+                    }
+                    
                     if (isDir(target))
                     {
                         rmdirRecurse(target);
@@ -371,7 +385,9 @@ class Sirefile
                         remove(target);
                     }
                 }
-                else
+                
+                    
+                if (newestDep > targetTime)
                 {
                     targetTime = newestDep;
                 }

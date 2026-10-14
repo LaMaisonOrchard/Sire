@@ -44,9 +44,6 @@ sire-test$(EXE) : FORCE : $(SRC)
     ${DC} -of=$(TARGET) $(DEPS)
 
     cp $(0) $(0)2
-
-    cd ..
-    echo $(PWD)
 }
 
 PRE : QUIET :
@@ -62,7 +59,6 @@ PRE : QUIET :
 POST : QUIET :
 {
     echo "goodbye"
-    echo $(PWD)
 }
 
 FAILED : QUIET :
